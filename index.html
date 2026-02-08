@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>De La Gouvernance</title>
+<title>Film Politique Interactif : Ultime Immersif</title>
 <style>
-body { font-family: Arial, sans-serif; background: #111; color: #eee; padding: 20px; overflow-x: hidden; transition: background 0.5s; }
+body { font-family: Arial, sans-serif; background: #111; color: #eee; padding: 20px; overflow: hidden; transition: background 0.5s; }
 h1, h2 { color: #f39c12; text-shadow: 1px 1px 6px #000; }
 .question { margin: 20px 0; padding: 20px; background: #2c3e50; border-radius: 12px; box-shadow: 0 0 25px #000; position: relative; overflow: hidden; }
 .options button { display: block; margin: 10px 0; padding: 12px 20px; width: 100%; border: none; border-radius: 6px; background: #3498db; color: #fff; font-weight: bold; cursor: pointer; transition: all 0.2s; }
@@ -16,19 +16,17 @@ h1, h2 { color: #f39c12; text-shadow: 1px 1px 6px #000; }
 .floatingFeedback { position: absolute; padding: 12px 18px; border-radius: 6px; font-weight: bold; opacity: 0.95; animation: floatUp 2.5s ease forwards; pointer-events: none; z-index: 100; transform-origin: center; }
 .floatingFeedback.good { background: #2ecc71; border-left: 5px solid #27ae60; color: #fff; }
 .floatingFeedback.bad { background: #e74c3c; border-left: 5px solid #c0392b; color: #fff; }
-@keyframes floatUp {
-  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.95; }
-  50% { transform: translateY(-50px) scale(1.05) rotate(3deg); opacity: 1; }
-  100% { transform: translateY(-100px) scale(1) rotate(-2deg); opacity: 0; }
-}
+@keyframes floatUp { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.95; } 50% { transform: translateY(-50px) scale(1.05) rotate(3deg); opacity: 1; } 100% { transform: translateY(-100px) scale(1) rotate(-2deg); opacity: 0; } }
 .shake { animation: shakeAnim 0.5s; }
 @keyframes shakeAnim { 0% { transform: translateX(0px); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } 100% { transform: translateX(0px); } }
+.miniEvent { position: absolute; font-size: 2em; opacity: 0.9; animation: floatChaos 3s forwards; pointer-events: none; }
+@keyframes floatChaos { 0% { transform: translateY(0) scale(1); opacity:0.9; } 50% { transform: translateY(-80px) scale(1.2); } 100% { transform: translateY(-200px) scale(1); opacity:0; } }
 </style>
 </head>
 <body>
 
-<h1>De La Gouvernance</h1>
-<p>Vos décisions influencent un système complexe et chaque choix déclenche des événements.</p>
+<h1>Film Politique Interactif : Ultime Immersif</h1>
+<p>Chaque choix est critique. Vos décisions déclenchent mini-chaos, feedbacks tranchants et impactent la narration finale.</p>
 
 <div id="quiz"></div>
 <div id="systemBar"><div id="systemLevel">50%</div></div>
@@ -38,13 +36,12 @@ h1, h2 { color: #f39c12; text-shadow: 1px 1px 6px #000; }
 <audio id="soundGood" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 <audio id="soundBad" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 <audio id="soundChaos" src="https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg"></audio>
+<audio id="bgMusic" src="https://actions.google.com/sounds/v1/ambiences/space_loop.ogg" loop autoplay></audio>
 
 <script>
 let systemLevel = 50;
-let score = 0;
 let narrativeLog = [];
 
-// 12 questions pour plus de profondeur
 const questions = [
   { q:"Une procédure inutile est introduite. Que faites-vous ?", options:[
     {text:"Supprimer immédiatement", impact:-15, feedback:"⚡ Brutal mais nécessaire ? Fragilise le système."},
@@ -168,6 +165,13 @@ function triggerEvent(eventList){
   systemLevel+=event.impact;
   floatingFeedback(event.msg,event.impact>0);
   narrativeLog.push(event.msg);
+  const mini=document.createElement('div');
+  mini.className='miniEvent';
+  mini.textContent='⚡';
+  mini.style.left=Math.random()*80+'%';
+  mini.style.top=Math.random()*80+'%';
+  document.body.appendChild(mini);
+  setTimeout(()=>mini.remove(),3000);
   updateSystemBar();
 }
 
@@ -182,7 +186,7 @@ questions.forEach((q,i)=>{
       btn.disabled=true;
       optsDiv.querySelectorAll('button').forEach(b=>b.disabled=true);
       floatingFeedback(opt.feedback,opt.impact>0);
-      systemLevel+=opt.impact;score++;updateSystemBar();
+      systemLevel+=opt.impact;updateSystemBar();
       if(Math.random()<0.7) triggerEvent(events);
       if(opt.branch==="miniChaos") triggerEvent(miniChaosEvents);
       if(i===questions.length-1){
