@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <title>Film Politique Interactif : Ultime Ultime</title>
 <style>
-body { margin:0; padding:0; font-family:Arial,sans-serif; background:#111; color:#eee; overflow:hidden; }
+body { margin:0; padding:0; font-family:Arial,sans-serif; background:#111; color:#eee; overflow:hidden; perspective:1200px; }
+#container { transform-style:preserve-3d; transition: transform 0.6s ease-out; }
 h1,h2 { color:#f39c12; text-shadow:1px 1px 14px #000; text-align:center; }
-#quiz { position:relative; z-index:10; max-width:700px; margin:20px auto; }
+#quiz { position:relative; z-index:10; max-width:700px; margin:20px auto; transform-style:preserve-3d; }
 .question { margin:20px 0; padding:20px; background:rgba(44,62,80,0.9); border-radius:12px; box-shadow:0 0 40px #000; }
 .options button { display:block; width:100%; margin:10px 0; padding:12px 20px; border:none; border-radius:6px; background:#3498db; color:#fff; font-weight:bold; cursor:pointer; transition:all 0.3s; }
 .options button:hover { background:#2980b9; transform:scale(1.05) rotate(-1deg);}
@@ -26,20 +27,21 @@ h1,h2 { color:#f39c12; text-shadow:1px 1px 14px #000; text-align:center; }
                         100% {transform:translateY(-300px) scale(1); opacity:0;} }
 canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
 .shake { animation: shakeAnim 0.5s;}
-@keyframes shakeAnim { 0% {transform:translateX(0);} 25% {transform:translateX(-8px);} 50% {transform:translateX(8px);} 75% {transform:translateX(-8px);} 100% {transform:translateX(0);} }
+@keyframes shakeAnim { 0% {transform:translateX(0) translateY(0);} 25% {transform:translateX(-8px) translateY(5px);} 50% {transform:translateX(8px) translateY(-5px);} 75% {transform:translateX(-8px) translateY(5px);} 100% {transform:translateX(0) translateY(0);} }
 </style>
 </head>
 <body>
 
-<canvas id="bgCanvas"></canvas>
-
+<div id="container">
 <h1>Film Politique Interactif : Ultime Ultime</h1>
 <p style="text-align:center;">Chaque choix déclenche mini-chaos, éclairs et feedbacks 3D.</p>
-
 <div id="quiz"></div>
 <div id="systemBar"><div id="systemLevel">50%</div></div>
 <div id="finalBadge">🏆 Cadre Systémique : Approuvé ✅</div>
 <div id="narrative"></div>
+</div>
+
+<canvas id="bgCanvas"></canvas>
 
 <audio id="soundGood" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 <audio id="soundBad" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
@@ -48,104 +50,40 @@ canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; 
 
 <script>
 document.addEventListener("DOMContentLoaded", function(){
-
 let systemLevel = 50;
 let narrativeLog = [];
 const quizDiv=document.getElementById('quiz');
 const systemLevelDiv=document.getElementById('systemLevel');
 const finalBadge=document.getElementById('finalBadge');
 const narrativeDiv=document.getElementById('narrative');
+const container=document.getElementById('container');
 const soundGood=document.getElementById('soundGood');
 const soundBad=document.getElementById('soundBad');
 const soundChaos=document.getElementById('soundChaos');
 
-// ===== Questions enrichies (12 questions) =====
+// ===== Questions simplifiées pour l'exemple =====
 const questions=[
-{ q:"Une procédure inutile est introduite. Que faites-vous ?", options:[
-{text:"Supprimer immédiatement", impact:-15, feedback:"⚡ Brutal mais nécessaire ? Fragilise le système."},
-{text:"Laisser continuer", impact:+10, feedback:"✅ Absurde mais stabilisant."},
-{text:"Publier un rapport", impact:-10, feedback:"⚠️ Transparence = exposition."},
-{text:"Modifier légèrement", impact:+5, feedback:"👍 Ajustement subtil."}
+{ q:"Décision stratégique majeure ?", options:[
+{text:"Agir immédiatement", impact:-15, feedback:"⚠️ Chaos imminent."},
+{text:"Analyser longuement", impact:+10, feedback:"✅ Prudence payante."},
+{text:"Reporter", impact:+5, feedback:"✅ Temps gagné."},
+{text:"Ignorer", impact:-10, feedback:"⚠️ Fragilité accrue."}
 ]},
-{ q:"Un acteur conteste une décision majeure.", options:[
-{text:"Punir l'acteur", impact:-20, feedback:"💥 Conflit direct, résistance accrue."},
-{text:"Cartographier et ajuster", impact:+15, feedback:"✅ Contestation convertie en outil."},
-{text:"Ignorer", impact:-5, feedback:"⚠️ Ignorance = zones d’incertitude."},
-{text:"Publier un démenti", impact:-10, feedback:"⚠️ Démenti inutile, fragilise image."}
-]},
-{ q:"Une crise se profile sur un projet stratégique.", options:[
-{text:"Agir immédiatement", impact:-15, feedback:"⚠️ Urgence = chaos amplifié."},
-{text:"Étaler le processus", impact:+20, feedback:"✅ Le temps neutralise le conflit."},
-{text:"Réunir pour vote", impact:-5, feedback:"⚠️ Trop de visibilité."},
-{text:"Exiger des rapports", impact:+5, feedback:"✅ Rapports prolongent la temporalité."}
-]},
-{ q:"Un audit complet est demandé.", options:[
-{text:"Tout montrer", impact:-20, feedback:"⚠️ Transparence totale fragilise."},
-{text:"Montrer uniquement les visibles", impact:+15, feedback:"✅ Illusion de contrôle rassurante."},
-{text:"Résumé général", impact:+5, feedback:"✅ Suffisant pour confiance."},
-{text:"Refuser poliment", impact:-10, feedback:"⚠️ Refus attire suspicion."}
-]},
-{ q:"Une fuite médiatique éclate.", options:[
+{ q:"Fuite médiatique détectée ?", options:[
 {text:"Désarmer avec humour", impact:+10, feedback:"✅ Retour habile."},
-{text:"Ignorer complètement", impact:-5, feedback:"⚠️ Silence = rumeurs."},
-{text:"Répression directe", impact:-20, feedback:"💥 Risque de mini-chaos."},
-{text:"Déformer légèrement", impact:+5, feedback:"✅ Subtil ajustement narratif."}
-]},
-{ q:"Un espion interne est soupçonné.", options:[
-{text:"Traquer sans pitié", impact:-20, feedback:"💥 Chaos interne."},
-{text:"Observer discrètement", impact:+15, feedback:"✅ Prudence = gain stratégique."},
-{text:"Publier accusation", impact:-10, feedback:"⚠️ Risque réputation."},
-{text:"Ignorer", impact:-5, feedback:"⚠️ Laisser la menace croître."}
-]},
-{ q:"Une opportunité internationale se présente.", options:[
-{text:"Exploiter agressivement", impact:+20, feedback:"✅ Gain maximal mais risqué."},
-{text:"Analyser longuement", impact:+10, feedback:"👍 Stabilité accrue."},
-{text:"Ignorer", impact:-10, feedback:"⚠️ Opportunité perdue."},
-{text:"Reporter décision", impact:+5, feedback:"✅ Risque minimisé."}
-]},
-{ q:"Un scandale interne éclate.", options:[
-{text:"Couper la tête du responsable", impact:-20, feedback:"💥 Punition spectaculaire, mais fragilise loyauté."},
-{text:"Médiatiser pour détourner", impact:-5, feedback:"⚠️ Risque de chaos médiatique."},
-{text:"Réparer discrètement", impact:+15, feedback:"✅ Subtil et efficace."},
-{text:"Ignorer", impact:-10, feedback:"⚠️ Laisser pourrir le scandale."}
-]},
-{ q:"Une loi controversée doit passer.", options:[
-{text:"Imposer sans débat", impact:-15, feedback:"⚠️ Autoritarisme = tension."},
-{text:"Consulter et amender", impact:+10, feedback:"✅ Consensus partiel atteint."},
-{text:"Reporter", impact:+5, feedback:"✅ Retarder = stabiliser."},
-{text:"Laisser le parlement gérer", impact:-5, feedback:"⚠️ Chaos parlementaire."}
-]},
-{ q:"Une rumeur circule sur vos collaborateurs.", options:[
-{text:"Nier publiquement", impact:-10, feedback:"⚠️ Négation = méfiance accrue."},
-{text:"Vérifier et corriger", impact:+15, feedback:"✅ Gestion prudente."},
-{text:"Exploiter pour manipuler", impact:+20, feedback:"✅ Contrôle subtil renforcé."},
-{text:"Ignorer", impact:-5, feedback:"⚠️ Risque propagation."}
-]},
-{ q:"Une attaque cyber-menace vos données.", options:[
-{text:"Bloquer et punir", impact:-15, feedback:"⚠️ Riposte visible = tensions."},
-{text:"Isoler et corriger", impact:+15, feedback:"✅ Neutralisation efficace."},
-{text:"Simuler attaque interne", impact:-10, feedback:"⚠️ Confusion totale."},
-{text:"Ignorer", impact:-20, feedback:"💥 Désastre inévitable."}
-]},
-{ q:"Un média tente de révéler un secret.", options:[
-{text:"Soudoyer la publication", impact:+15, feedback:"✅ Manipulation réussie."},
-{text:"Nier et menacer", impact:-15, feedback:"⚠️ Effet boomerang probable."},
-{text:"Ignorer", impact:-5, feedback:"⚠️ Laisser circuler = fragilité."},
-{text:"Publier une version alternative", impact:+10, feedback:"✅ Contournement créatif."}
+{text:"Répression directe", impact:-20, feedback:"💥 Chaos interne."},
+{text:"Ignorer", impact:-5, feedback:"⚠️ Rumeurs circulent."},
+{text:"Déformer légèrement", impact:+5, feedback:"✅ Manipulation subtile."}
 ]}];
 
-// ===== Mini-événements =====
-const events=[{ msg:"Procédure virale… stabilité +5", impact:+5 },
-{ msg:"Tweet rebelle… stabilité -10", impact:-10 },
-{ msg:"Réunion inutile… stabilité +10", impact:+10 },
-{ msg:"E-mail mal adressé… stabilité -8", impact:-8 }];
+// Mini-événements
+const events=[{ msg:"Mini-chaos… stabilité -10", impact:-10 },{ msg:"Réunion stabilisante… +5", impact:+5 }];
 
-// ===== Fonctions =====
 function updateSystemBar(){
     systemLevel=Math.max(0,Math.min(100,systemLevel));
     systemLevelDiv.style.width=systemLevel+"%";
     systemLevelDiv.textContent=systemLevel+"%";
-    if(systemLevel<40){systemLevelDiv.classList.add('shake'); soundChaos.play(); setTimeout(()=>systemLevelDiv.classList.remove('shake'),500);}
+    if(systemLevel<40){container.classList.add('shake'); soundChaos.play(); setTimeout(()=>container.classList.remove('shake'),500);}
 }
 
 function floatingFeedback(msg,isGood){
@@ -177,7 +115,7 @@ function triggerEvent(eventList){
     updateSystemBar();
 }
 
-// Création des questions visibles
+// Création questions avec zoom et caméra
 questions.forEach((q,i)=>{
     const div=document.createElement('div');div.className='question';
     div.innerHTML=`<h2>Q${i+1}: ${q.q}</h2>`;
@@ -188,21 +126,14 @@ questions.forEach((q,i)=>{
         btn.onclick=()=>{
             btn.disabled=true;
             optsDiv.querySelectorAll('button').forEach(b=>b.disabled=true);
+            // Caméra zoom + rotation
+            container.style.transform=`scale(1.05) rotateX(${(Math.random()*5-2.5)}deg) rotateY(${(Math.random()*5-2.5)}deg)`;
+            setTimeout(()=>{container.style.transform=`scale(1) rotateX(0deg) rotateY(0deg)`;},600);
+
             floatingFeedback(opt.feedback,opt.impact>0);
             if(opt.impact<0){createLightning();}
             systemLevel+=opt.impact; updateSystemBar();
             if(Math.random()<0.8) triggerEvent(events);
-            if(i===questions.length-1){
-                finalBadge.style.display="block";
-                let narrativeText="📖 Récit final :\n\n"+narrativeLog.map((e,idx)=>`${idx+1}. ${e}`).join("\n");
-                let finale="";
-                if(systemLevel>=80) finale="Hyperstable ✅ : Système parfait, chaos converti en ordre.";
-                else if(systemLevel>=60) finale="Stable 🔹 : Frictions mineures, système sous contrôle.";
-                else if(systemLevel>=40) finale="Instable ⚠️ : Décisions maladroites, mini-chaos en chaîne.";
-                else finale="Chaotique 🔥 : Effondrement total, chaos absolu.";
-                narrativeText+="\n\nSystème final : "+finale;
-                narrativeDiv.style.display="block"; narrativeDiv.textContent=narrativeText;
-            }
         };
         optsDiv.appendChild(btn);
     });
