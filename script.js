@@ -184,8 +184,6 @@ const questionsData = [
   }
 ];
 
-];
-
 let current = 0;
 let score = 50;
 
