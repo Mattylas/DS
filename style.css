@@ -1,28 +1,194 @@
-body {
+/* ===============================
+   RESET MINIMAL
+   =============================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
-  background: black;
-  color: white;
-  font-family: Arial, sans-serif;
+  padding: 0;
+}
+
+/* ===============================
+   BASE
+   =============================== */
+
+body {
+  background: #000;
+  color: #f2f2f2;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  overflow-y: auto; /* IMPORTANT : scroll autorisé */
 }
 
 #app {
-  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 120px;
 }
+
+/* ===============================
+   HEADER
+   =============================== */
+
+header {
+  margin-bottom: 60px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 30px;
+}
+
+header h1 {
+  font-size: 36px;
+  margin: 0 0 10px;
+  letter-spacing: 0.5px;
+}
+
+header p {
+  margin: 0 0 20px;
+  opacity: 0.7;
+  font-size: 15px;
+}
+
+#score {
+  font-size: 16px;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  display: inline-block;
+  border: 1px solid #333;
+  background: #111;
+}
+
+/* ===============================
+   QUESTIONS
+   =============================== */
 
 .question {
-  margin-top: 60px;
+  margin-top: 80px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #222;
 }
 
-button {
-  display: block;
-  margin: 10px 0;
-  padding: 10px;
-  background: #222;
-  color: white;
-  border: 1px solid #555;
+.question h2 {
+  font-size: 26px;
+  margin-bottom: 30px;
+  font-weight: normal;
+}
+
+/* ===============================
+   ANSWERS
+   =============================== */
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.answers button {
+  background: #111;
+  color: #f2f2f2;
+  border: 1px solid #333;
+  padding: 14px 18px;
+  font-size: 15px;
+  text-align: left;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-button:hover {
-  background: crimson;
+.answers button:hover {
+  background: #1b1b1b;
+  border-color: #777;
+}
+
+.answers button:active {
+  transform: translateY(1px);
+}
+
+/* ===============================
+   FEEDBACK
+   =============================== */
+
+#feedback {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20,20,20,0.95);
+  color: #fff;
+  padding: 14px 22px;
+  border: 1px solid #444;
+  font-size: 14px;
+  max-width: 90%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+/* ===============================
+   ENDINGS
+   =============================== */
+
+.ending {
+  margin-top: 100px;
+  padding: 40px 0;
+}
+
+.ending h2 {
+  font-size: 34px;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
+}
+
+.ending pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.7;
+  opacity: 0.85;
+}
+
+.score-final {
+  margin-top: 40px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+/* ----- Variantes politiques ----- */
+
+.ending.stability h2 {
+  color: #4caf50;
+}
+
+.ending.authoritarian h2 {
+  color: #ff9800;
+}
+
+.ending.collapse h2 {
+  color: #f44336;
+}
+
+/* ===============================
+   ACCESSIBILITÉ & CONFORT
+   =============================== */
+
+button:focus {
+  outline: none;
+  border-color: #aaa;
+}
+
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 28px;
+  }
+
+  .question h2 {
+    font-size: 22px;
+  }
+
+  .answers button {
+    font-size: 14px;
+  }
 }
