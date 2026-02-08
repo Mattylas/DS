@@ -143,7 +143,6 @@ function showGhost(text) {
   document.body.appendChild(ghostEl);
   setTimeout(()=>ghostEl.remove(),3000);
 }
-
 function showQuestion() {
   if(currentQuestion >= questionsData.length){
     showEnding();
@@ -151,7 +150,16 @@ function showQuestion() {
   }
   questionsContainer.innerHTML = "";
   const q = questionsData[currentQuestion];
-  const questionText = typeof q.text === "function" ? q.text() : q.text;
+
+  // Assure un texte valide
+  let questionText = "";
+  if(typeof q.text === "function"){
+    questionText = q.text();
+    if(!questionText) questionText = "Question suivante : prenez votre décision.";
+  } else {
+    questionText = q.text;
+  }
+
   const questionEl = document.createElement("div");
   questionEl.className = "question";
   questionEl.innerHTML = `<h2>${questionText}</h2>`;
@@ -174,6 +182,7 @@ function showQuestion() {
   questionEl.appendChild(answersDiv);
   questionsContainer.appendChild(questionEl);
 }
+
 
 function showFeedback(text){
   feedbackContainer.textContent = text;
