@@ -192,3 +192,46 @@ button:focus {
     font-size: 14px;
   }
 }
+/* ===============================
+   IMPLOSION VISUELLE
+   =============================== */
+
+body.implosion {
+  animation: screenShake 0.4s infinite alternate;
+}
+
+@keyframes screenShake {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-2px, 1px); }
+  50%  { transform: translate(2px, -1px); }
+  75%  { transform: translate(-1px, -2px); }
+  100% { transform: translate(1px, 2px); }
+}
+
+/* Flash aléatoire */
+body.implosion::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+  animation: flash 0.15s infinite;
+  z-index: 999;
+}
+
+@keyframes flash {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Texte instable */
+.implosion .ending pre {
+  animation: textGlitch 0.2s infinite alternate;
+}
+
+@keyframes textGlitch {
+  from { letter-spacing: 0.5px; }
+  to   { letter-spacing: 2px; }
+}
+
