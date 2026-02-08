@@ -2,97 +2,135 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Module e-Learning : Gouvernance Systémique</title>
+<title>Mini-Jeu Ultime : Gouvernance Systémique Narratif</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f5f5f5; color: #222; padding: 20px; }
+  body { font-family: Arial, sans-serif; background: #f2f2f2; color: #222; padding: 20px; }
   h1, h2 { color: #2c3e50; }
-  .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-  .options button { display: block; margin: 8px 0; padding: 10px 15px; width: 100%; border: none; border-radius: 5px; background: #3498db; color: #fff; cursor: pointer; }
-  .options button:hover { background: #2980b9; }
-  .feedback { margin-top: 10px; padding: 10px; border-left: 5px solid #27ae60; background: #ecf9f1; display: none; }
+  .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .options button { display: block; margin: 8px 0; padding: 10px 15px; width: 100%; border: none; border-radius: 5px; background: #3498db; color: #fff; cursor: pointer; transition: transform 0.2s; }
+  .options button:hover { background: #2980b9; transform: scale(1.03); }
+  .feedback { margin-top: 10px; padding: 10px; border-left: 5px solid #27ae60; background: #ecf9f1; display: none; transition: all 0.5s ease; }
   .feedback.wrong { border-left-color: #c0392b; background: #fdecea; }
-  #finalScore { font-size: 1.2em; margin-top: 20px; color: #e67e22; }
+  #systemBar { height: 30px; width: 100%; background: #ccc; border-radius: 5px; margin-top: 20px; overflow: hidden; }
+  #systemLevel { height: 100%; width: 50%; background: #27ae60; text-align: center; line-height: 30px; color: #fff; transition: all 0.5s ease; }
+  #finalBadge { font-size: 1.5em; margin-top: 30px; color: #e67e22; text-align: center; display: none; }
+  #narrative { font-size: 1em; margin-top: 20px; background: #fff; padding: 15px; border-radius: 8px; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 </style>
 </head>
 <body>
 
-<h1>Module e-Learning : Gouvernance Systémique</h1>
-<p>Bienvenue dans le module interactif. Chaque QCM renforce la logique du système. Il n’y a pas de mauvaise réponse… seulement des choix qui confirment le manuel.</p>
+<h1>Mini-Jeu Ultime : Gouvernance Systémique Narratif</h1>
+<p>Vos choix façonnent le système. Certains déclenchent des événements en chaîne et des branches supplémentaires. Voyez comment votre gouvernance influence le monde fictif.</p>
 
 <div id="quiz"></div>
 
-<div id="finalScore"></div>
+<div id="systemBar">
+  <div id="systemLevel">50%</div>
+</div>
+
+<div id="finalBadge">🏆 Cadre Systémique : Approuvé ✅</div>
+<div id="narrative"></div>
 
 <script>
+let systemLevel = 50;
+let score = 0;
+let narrativeLog = [];
+
+const events = [
+  { msg: "Une procédure inutile devient virale sur Slack… stabilité +5", impact: +5 },
+  { msg: "Un acteur rebelle publie un tweet ironique… stabilité -10", impact: -10 },
+  { msg: "Le café de l’open space est coupé… moral collectif -5", impact: -5 },
+  { msg: "Une réunion inutile absorbe toute l’énergie… stabilité +10", impact: +10 },
+  { msg: "Un e-mail mal adressé crée un micro-chaos… stabilité -8", impact: -8 }
+];
+
 const questions = [
   {
-    q: "Quel est le meilleur comportement du cadre dans un système complexe ?",
+    q: "Une procédure inutile est introduite dans le workflow. Que faites-vous ?",
     options: [
-      { text: "Menacer subtilement chaque collaborateur", correct: false, feedback: "⚠️ Coercition crée résistance. Le vrai cadre laisse faire." },
-      { text: "Créer des contraintes visibles", correct: false, feedback: "⚠️ Les interdits évidents sont inefficaces." },
-      { text: "Modifier les flux et laisser chacun agir raisonnablement", correct: true, feedback: "✅ Correct. Orientation > coercition." },
-      { text: "Interdire toute initiative individuelle", correct: false, feedback: "⚠️ L’interdiction visible attire la résistance." }
+      { text: "Supprimer immédiatement", impact: -15, feedback: "⚠️ Élimination brutale fragilise le système.", branch: "miniChaos" },
+      { text: "Laisser continuer", impact: +10, feedback: "✅ La procédure absurde stabilise le flux." },
+      { text: "Publier un rapport dénonçant l’inefficacité", impact: -10, feedback: "⚠️ Trop de visibilité attire corrections." },
+      { text: "Modifier légèrement la procédure", impact: +5, feedback: "✅ Ajustement subtil stabilise légèrement." }
     ]
   },
   {
-    q: "Comment garantir la robustesse du système ?",
+    q: "Un acteur conteste une décision majeure. Quelle est votre réponse ?",
     options: [
-      { text: "Centraliser toutes les décisions", correct: false, feedback: "⚠️ Centraliser expose aux erreurs humaines." },
-      { text: "Fragmenter les responsabilités et multiplier les validations", correct: true, feedback: "✅ Correct. Responsabilité diffuse = système imparable." },
-      { text: "Superviser tous les flux en direct", correct: false, feedback: "⚠️ Microgestion fragilise le système." },
-      { text: "Obliger les individus à rédiger des rapports détaillés", correct: false, feedback: "⚠️ Trop de rapports n’apportent pas de stabilité." }
+      { text: "Punir l’acteur", impact: -20, feedback: "⚠️ Confrontation directe : résistance accrue.", branch: "miniChaos" },
+      { text: "Cartographier et ajuster les flux", impact: +15, feedback: "✅ Contestation convertie en outil d’optimisation." },
+      { text: "Ignorer totalement", impact: -5, feedback: "⚠️ Ignorer crée zones d’incertitude." },
+      { text: "Publier un démenti officiel", impact: -10, feedback: "⚠️ Démenti = exposition inutile." }
     ]
   },
   {
-    q: "Que faire face à une contestation majeure ?",
+    q: "Une crise se profile sur un projet stratégique.",
     options: [
-      { text: "Punir l’émetteur", correct: false, feedback: "⚠️ Punir active le conflit." },
-      { text: "Ignorer le signal", correct: false, feedback: "⚠️ Ignorer fait perdre l’information." },
-      { text: "Cartographier et ajuster les flux", correct: true, feedback: "✅ Correct. La contestation devient un outil." },
-      { text: "Publier un démenti officiel", correct: false, feedback: "⚠️ Démenti attire l’attention inutilement." }
+      { text: "Agir immédiatement", impact: -15, feedback: "⚠️ Urgence amplifie le conflit." },
+      { text: "Étaler le processus", impact: +20, feedback: "✅ Le temps neutralise le conflit." },
+      { text: "Réunir tous les acteurs pour un vote", impact: -5, feedback: "⚠️ Trop de visibilité, risque accru." },
+      { text: "Exiger des rapports exhaustifs", impact: +5, feedback: "✅ Rapports prolongent la temporalité." }
     ]
   },
   {
-    q: "Quelle est la meilleure méthode pour neutraliser une crise ?",
+    q: "Un observateur demande un audit complet des flux internes.",
     options: [
-      { text: "Agir immédiatement", correct: false, feedback: "⚠️ L’urgence amplifie le conflit." },
-      { text: "Étaler le processus et multiplier les consultations", correct: true, feedback: "✅ Correct. Le temps neutralise." },
-      { text: "Réunir tous les acteurs pour un vote décisif", correct: false, feedback: "⚠️ Trop visible, trop de risque." },
-      { text: "Exiger des rapports exhaustifs", correct: false, feedback: "⚠️ Rapports détaillés ralentissent mais ne stabilisent pas le système." }
+      { text: "Fournir toutes les informations", impact: -20, feedback: "⚠️ Transparence totale fragilise la stabilité.", branch: "miniChaos" },
+      { text: "Montrer uniquement les procédures visibles", impact: +15, feedback: "✅ L’illusion de contrôle rassure." },
+      { text: "Publier un résumé général", impact: +5, feedback: "✅ Suffisamment rassurant pour maintenir confiance." },
+      { text: "Refuser poliment", impact: -10, feedback: "⚠️ Refus attire suspicion." }
     ]
   },
   {
-    q: "Que montrer aux observateurs externes ?",
+    q: "Vous devez gérer un conflit moral interne chez un acteur.",
     options: [
-      { text: "Les décisions stratégiques", correct: false, feedback: "⚠️ Trop de visibilité attire le contrôle." },
-      { text: "Les procédures visibles sans révéler le fonctionnement réel", correct: true, feedback: "✅ Correct. L’illusion suffit." },
-      { text: "Les anomalies détectées", correct: false, feedback: "⚠️ Montrer les anomalies crée des doutes inutiles." },
-      { text: "La totalité des flux techniques", correct: false, feedback: "⚠️ Trop de transparence fragilise le système." }
-    ]
-  },
-  {
-    q: "Comment un acteur peut-il se protéger moralement ?",
-    options: [
-      { text: "Agir uniquement selon ses convictions", correct: false, feedback: "⚠️ L’idéalisme pur expose à des conflits." },
-      { text: "Suivre la légalité, la continuité et la prudence", correct: true, feedback: "✅ Correct. Alignement = protection." },
-      { text: "Dénoncer toute anomalie immédiatement", correct: false, feedback: "⚠️ Dénoncer trop tôt fragilise le système." },
-      { text: "Laisser les décisions aux supérieurs", correct: false, feedback: "⚠️ L’inaction active l’instabilité." }
-    ]
-  },
-  {
-    q: "Un employé invente une procédure inutile mais chronophage. Que faire ?",
-    options: [
-      { text: "Supprimer la procédure", correct: false, feedback: "⚠️ Supprimer interfère avec l’équilibre." },
-      { text: "Laisser la procédure continuer", correct: true, feedback: "✅ Correct. Même l’absurde renforce le système." },
-      { text: "Punir l’employé", correct: false, feedback: "⚠️ Punir fragilise la confiance." },
-      { text: "Publier un rapport d’audit dénonçant l’inefficacité", correct: false, feedback: "⚠️ Publier attire l’attention inutilement." }
+      { text: "Laisser agir selon ses convictions", impact: -10, feedback: "⚠️ L’idéalisme pur fragilise le système." },
+      { text: "Aligner sur légalité, prudence et continuité", impact: +20, feedback: "✅ Alignement = protection et cohérence." },
+      { text: "Exiger dénonciation immédiate", impact: -15, feedback: "⚠️ Trop rapide = résistance." },
+      { text: "Ne rien faire", impact: -5, feedback: "⚠️ L’inaction laisse zones instables." }
     ]
   }
 ];
 
-let score = 0;
+const miniChaosEvents = [
+  { msg: "Un mini-chaos se déclenche : une réunion surprise génère un micro-scandale… stabilité -7", impact: -7 },
+  { msg: "Un acteur créatif invente une procédure inutile… stabilité +8", impact: +8 }
+];
 
 const quizDiv = document.getElementById('quiz');
+const systemLevelDiv = document.getElementById('systemLevel');
+const finalBadge = document.getElementById('finalBadge');
+const narrativeDiv = document.getElementById('narrative');
+
+function updateSystemBar() {
+  if(systemLevel < 0) systemLevel = 0;
+  if(systemLevel > 100) systemLevel = 100;
+  systemLevelDiv.style.width = systemLevel + "%";
+  systemLevelDiv.textContent = systemLevel + "%";
+  if(systemLevel >= 80) systemLevelDiv.style.background = "#27ae60";
+  else if(systemLevel >= 60) systemLevelDiv.style.background = "#2ecc71";
+  else if(systemLevel >= 40) systemLevelDiv.style.background = "#f1c40f";
+  else systemLevelDiv.style.background = "#e74c3c";
+
+  // Animation pulse si instable
+  if(systemLevel < 40) {
+    systemLevelDiv.style.transform = `scale(${1 + Math.random()*0.05})`;
+    setTimeout(() => { systemLevelDiv.style.transform = 'scale(1)'; }, 200);
+  }
+}
+
+function triggerEvent(eventList) {
+  const event = eventList[Math.floor(Math.random() * eventList.length)];
+  systemLevel += event.impact;
+  const div = document.createElement('div');
+  div.className = 'feedback';
+  div.textContent = "🎲 Événement : " + event.msg;
+  if(event.impact < 0) div.classList.add('wrong');
+  quizDiv.appendChild(div);
+  div.style.display = 'block';
+  narrativeLog.push(event.msg);
+  updateSystemBar();
+}
 
 questions.forEach((q, i) => {
   const div = document.createElement('div');
@@ -107,15 +145,31 @@ questions.forEach((q, i) => {
       const feedbackDiv = document.createElement('div');
       feedbackDiv.className = 'feedback';
       feedbackDiv.textContent = opt.feedback;
-      if (!opt.correct) feedbackDiv.classList.add('wrong');
+      if(opt.impact < 0) feedbackDiv.classList.add('wrong');
       btn.disabled = true;
       optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
       optsDiv.appendChild(feedbackDiv);
       feedbackDiv.style.display = 'block';
-      // Score auto-validant : chaque QCM contribue
+
+      // Mise à jour système
+      systemLevel += opt.impact;
       score += 1;
-      if (i === questions.length - 1) {
-        document.getElementById('finalScore').textContent = `✅ Module terminé : Cadre Systémique Approuvé (${score}/${questions.length})`;
+      updateSystemBar();
+
+      // Événements aléatoires
+      if(Math.random() < 0.5) triggerEvent(events);
+
+      // Branches miniChaos
+      if(opt.branch === "miniChaos") triggerEvent(miniChaosEvents);
+
+      // Badge et narration finale
+      if(i === questions.length - 1) {
+        finalBadge.style.display = "block";
+        let narrativeText = "📖 Récit de votre gouvernance :\n\n";
+        narrativeText += narrativeLog.map((e, idx) => `${idx+1}. ${e}`).join("\n");
+        narrativeText += `\n\nSystème final : ${systemLevel >= 80 ? "Hyperstable ✅" : systemLevel >=60 ? "Stable 🔹" : systemLevel >=40 ? "Instable ⚠️" : "Chaotique 🔥"}`;
+        narrativeDiv.style.display = "block";
+        narrativeDiv.textContent = narrativeText;
       }
     };
     optsDiv.appendChild(btn);
@@ -123,6 +177,8 @@ questions.forEach((q, i) => {
   div.appendChild(optsDiv);
   quizDiv.appendChild(div);
 });
+
+updateSystemBar();
 </script>
 
 </body>
