@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Module e-Learning : Gouvernance Systémique</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; color: #222; padding: 20px; }
+  h1, h2 { color: #2c3e50; }
+  .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .options button { display: block; margin: 8px 0; padding: 10px 15px; width: 100%; border: none; border-radius: 5px; background: #3498db; color: #fff; cursor: pointer; }
+  .options button:hover { background: #2980b9; }
+  .feedback { margin-top: 10px; padding: 10px; border-left: 5px solid #27ae60; background: #ecf9f1; display: none; }
+  .feedback.wrong { border-left-color: #c0392b; background: #fdecea; }
+  #finalScore { font-size: 1.2em; margin-top: 20px; color: #e67e22; }
+</style>
+</head>
+<body>
+
+<h1>Module e-Learning : Gouvernance Systémique</h1>
+<p>Bienvenue dans le module interactif. Chaque QCM renforce la logique du système. Il n’y a pas de mauvaise réponse… seulement des choix qui confirment le manuel.</p>
+
+<div id="quiz"></div>
+
+<div id="finalScore"></div>
+
+<script>
+const questions = [
+  {
+    q: "Quel est le meilleur comportement du cadre dans un système complexe ?",
+    options: [
+      { text: "Menacer subtilement chaque collaborateur", correct: false, feedback: "⚠️ Coercition crée résistance. Le vrai cadre laisse faire." },
+      { text: "Créer des contraintes visibles", correct: false, feedback: "⚠️ Les interdits évidents sont inefficaces." },
+      { text: "Modifier les flux et laisser chacun agir raisonnablement", correct: true, feedback: "✅ Correct. Orientation > coercition." },
+      { text: "Interdire toute initiative individuelle", correct: false, feedback: "⚠️ L’interdiction visible attire la résistance." }
+    ]
+  },
+  {
+    q: "Comment garantir la robustesse du système ?",
+    options: [
+      { text: "Centraliser toutes les décisions", correct: false, feedback: "⚠️ Centraliser expose aux erreurs humaines." },
+      { text: "Fragmenter les responsabilités et multiplier les validations", correct: true, feedback: "✅ Correct. Responsabilité diffuse = système imparable." },
+      { text: "Superviser tous les flux en direct", correct: false, feedback: "⚠️ Microgestion fragilise le système." },
+      { text: "Obliger les individus à rédiger des rapports détaillés", correct: false, feedback: "⚠️ Trop de rapports n’apportent pas de stabilité." }
+    ]
+  },
+  {
+    q: "Que faire face à une contestation majeure ?",
+    options: [
+      { text: "Punir l’émetteur", correct: false, feedback: "⚠️ Punir active le conflit." },
+      { text: "Ignorer le signal", correct: false, feedback: "⚠️ Ignorer fait perdre l’information." },
+      { text: "Cartographier et ajuster les flux", correct: true, feedback: "✅ Correct. La contestation devient un outil." },
+      { text: "Publier un démenti officiel", correct: false, feedback: "⚠️ Démenti attire l’attention inutilement." }
+    ]
+  },
+  {
+    q: "Quelle est la meilleure méthode pour neutraliser une crise ?",
+    options: [
+      { text: "Agir immédiatement", correct: false, feedback: "⚠️ L’urgence amplifie le conflit." },
+      { text: "Étaler le processus et multiplier les consultations", correct: true, feedback: "✅ Correct. Le temps neutralise." },
+      { text: "Réunir tous les acteurs pour un vote décisif", correct: false, feedback: "⚠️ Trop visible, trop de risque." },
+      { text: "Exiger des rapports exhaustifs", correct: false, feedback: "⚠️ Rapports détaillés ralentissent mais ne stabilisent pas le système." }
+    ]
+  },
+  {
+    q: "Que montrer aux observateurs externes ?",
+    options: [
+      { text: "Les décisions stratégiques", correct: false, feedback: "⚠️ Trop de visibilité attire le contrôle." },
+      { text: "Les procédures visibles sans révéler le fonctionnement réel", correct: true, feedback: "✅ Correct. L’illusion suffit." },
+      { text: "Les anomalies détectées", correct: false, feedback: "⚠️ Montrer les anomalies crée des doutes inutiles." },
+      { text: "La totalité des flux techniques", correct: false, feedback: "⚠️ Trop de transparence fragilise le système." }
+    ]
+  },
+  {
+    q: "Comment un acteur peut-il se protéger moralement ?",
+    options: [
+      { text: "Agir uniquement selon ses convictions", correct: false, feedback: "⚠️ L’idéalisme pur expose à des conflits." },
+      { text: "Suivre la légalité, la continuité et la prudence", correct: true, feedback: "✅ Correct. Alignement = protection." },
+      { text: "Dénoncer toute anomalie immédiatement", correct: false, feedback: "⚠️ Dénoncer trop tôt fragilise le système." },
+      { text: "Laisser les décisions aux supérieurs", correct: false, feedback: "⚠️ L’inaction active l’instabilité." }
+    ]
+  },
+  {
+    q: "Un employé invente une procédure inutile mais chronophage. Que faire ?",
+    options: [
+      { text: "Supprimer la procédure", correct: false, feedback: "⚠️ Supprimer interfère avec l’équilibre." },
+      { text: "Laisser la procédure continuer", correct: true, feedback: "✅ Correct. Même l’absurde renforce le système." },
+      { text: "Punir l’employé", correct: false, feedback: "⚠️ Punir fragilise la confiance." },
+      { text: "Publier un rapport d’audit dénonçant l’inefficacité", correct: false, feedback: "⚠️ Publier attire l’attention inutilement." }
+    ]
+  }
+];
+
+let score = 0;
+
+const quizDiv = document.getElementById('quiz');
+
+questions.forEach((q, i) => {
+  const div = document.createElement('div');
+  div.className = 'question';
+  div.innerHTML = `<h2>Q${i+1}: ${q.q}</h2>`;
+  const optsDiv = document.createElement('div');
+  optsDiv.className = 'options';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = opt.text;
+    btn.onclick = () => {
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.className = 'feedback';
+      feedbackDiv.textContent = opt.feedback;
+      if (!opt.correct) feedbackDiv.classList.add('wrong');
+      btn.disabled = true;
+      optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+      optsDiv.appendChild(feedbackDiv);
+      feedbackDiv.style.display = 'block';
+      // Score auto-validant : chaque QCM contribue
+      score += 1;
+      if (i === questions.length - 1) {
+        document.getElementById('finalScore').textContent = `✅ Module terminé : Cadre Systémique Approuvé (${score}/${questions.length})`;
+      }
+    };
+    optsDiv.appendChild(btn);
+  });
+  div.appendChild(optsDiv);
+  quizDiv.appendChild(div);
+});
+</script>
+
+</body>
+</html>
