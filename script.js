@@ -184,16 +184,28 @@ const questionsData = [
   }
 ];
 
+// ----- ÉTAT -----
+
 let current = 0;
 let score = 50;
+
+// ----- DOM -----
 
 const questionsEl = document.getElementById("questions");
 const scoreEl = document.getElementById("score");
 const feedbackEl = document.getElementById("feedback");
 
+// ----- RENDU SCORE -----
+
+function updateScore() {
+  scoreEl.textContent = "Stabilité : " + score;
+}
+
+// ----- RENDU QUESTION -----
+
 function renderQuestion() {
-  if (!questionsData[current]) {
-    questionsEl.innerHTML = "<h2>Fin du module</h2>";
+  if (current >= questionsData.length) {
+    renderEnding();
     return;
   }
 
@@ -202,22 +214,96 @@ function renderQuestion() {
   questionsEl.innerHTML = `
     <section class="question">
       <h2>${q.text}</h2>
-      ${q.answers.map((a, i) =>
-        `<button onclick="answer(${i})">${a.label}</button>`
-      ).join("")}
+      <div class="answers">
+        ${q.answers
+          .map(
+            (a, i) =>
+              `<button data-index="${i}">${a.label}</button>`
+          )
+          .join("")}
+      </div>
     </section>
   `;
+
+  // Attacher les événements
+  document.querySelectorAll(".answers button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      handleAnswer(parseInt(btn.dataset.index, 10));
+    });
+  });
+
+  // Scroll naturel vers la question
+  questionsEl.lastElementChild.scrollIntoView({ behavior: "smooth" });
 }
 
-window.answer = function(index) {
-  const a = questionsData[current].answers[index];
-  score += a.impact;
-  scoreEl.textContent = "Stabilité : " + score;
+// ----- TRAITEMENT RÉPONSE -----
 
-  feedbackEl.textContent = a.feedback;
+function handleAnswer(index) {
+  const answer = questionsData[current].answers[index];
+
+  score += answer.impact;
+  updateScore();
+
+  feedbackEl.textContent = answer.feedback;
+  feedbackEl.style.opacity = 1;
 
   current++;
-  setTimeout(renderQuestion, 600);
-};
 
-renderQuestion(); // 🔥 APPEL CRUCIAL
+  setTimeout(() => {
+    feedbackEl.style.opacity = 0;
+    renderQuestion();
+  }, 600);
+}
+
+// ----- ÉCRANS DE FIN -----
+
+function renderEnding() {
+  let title = "";
+  let text = "";
+  let cls = "";
+
+  if (score >= 120) {
+    cls = "stability";
+    title = "STABILITÉ ABSOLUE";
+    text = `
+Le système tient.
+Les crises sont absorbées, les récits verrouillés.
+Rien ne s’effondre.
+Rien ne s’améliore.
+Le pouvoir continue — sans opposition visible.
+`;
+  } else if (score >= 70) {
+    cls = "authoritarian";
+    title = "ORDRE AUTORITAIRE";
+    text = `
+La stabilité est maintenue par anticipation de la sanction.
+L’obéissance est plus rapide que le débat.
+Le pouvoir n’est plus justifié.
+Il est optimisé.
+`;
+  } else {
+    cls = "collapse";
+    title = "IMPLOSION";
+    text = `
+Les récits se sont contredits.
+Les outils se sont retournés.
+La légitimité s’est évaporée.
+Personne n’a gagné.
+`;
+  }
+
+  questionsEl.innerHTML = `
+    <section class="ending ${cls}">
+      <h2>${title}</h2>
+      <pre>${text}</pre>
+      <p class="score-final">Stabilité finale : ${score}</p>
+    </section>
+  `;
+
+  questionsEl.lastElementChild.scrollIntoView({ behavior: "smooth" });
+}
+
+// ----- INIT -----
+
+updateScore();
+renderQuestion();
