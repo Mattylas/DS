@@ -36,8 +36,6 @@ const questionsData = [
     {label:"Parce que personne d’autre ne peut",impact:8,ghost:"Le système se ferme."},
     {label:"Tu ne sais plus",impact:-20,ghost:"Le système, lui, sait."}
   ]},
-
-  // --- 10 supplémentaires ---
   {text: "Une rumeur interne prend de l’ampleur dans les médias.", answers:[
     {label: "Contacter la source et négocier", impact:5, ghost:"La négociation calme mais ne ferme jamais."},
     {label: "Ignorer et laisser flotter", impact:-3, ghost:"Le silence nourrit l’incertitude."},
@@ -88,8 +86,6 @@ const questionsData = [
     {label:"Contre-attaquer subtilement",impact:7,ghost:"La manipulation douce fonctionne."},
     {label:"Ignorer complètement",impact:-6,ghost:"L’indifférence est interprétée comme faiblesse."}
   ]},
-
-  // --- 8 nouvelles questions ---
   {text:"Un scandale sanitaire se propage.",answers:[
     {label:"Cacher les données",impact:12,ghost:"La peur remplace l’information."},
     {label:"Communiquer partiellement",impact:6,ghost:"La vérité calibrée rassure mais contrôle."},
