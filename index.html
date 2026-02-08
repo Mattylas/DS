@@ -4,172 +4,151 @@
 <meta charset="UTF-8">
 <title>De La Gouvernance</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f2f2f2; color: #222; padding: 20px; }
-  h1, h2 { color: #2c3e50; }
-  .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  .options button { display: block; margin: 8px 0; padding: 10px 15px; width: 100%; border: none; border-radius: 5px; background: #3498db; color: #fff; cursor: pointer; transition: transform 0.2s; }
-  .options button:hover { background: #2980b9; transform: scale(1.03); }
-  .feedback { margin-top: 10px; padding: 10px; border-left: 5px solid #27ae60; background: #ecf9f1; display: none; transition: all 0.5s ease; }
-  .feedback.wrong { border-left-color: #c0392b; background: #fdecea; }
-  #systemBar { height: 30px; width: 100%; background: #ccc; border-radius: 5px; margin-top: 20px; overflow: hidden; }
-  #systemLevel { height: 100%; width: 50%; background: #27ae60; text-align: center; line-height: 30px; color: #fff; transition: all 0.5s ease; }
-  #finalBadge { font-size: 1.5em; margin-top: 30px; color: #e67e22; text-align: center; display: none; }
-  #narrative { font-size: 1em; margin-top: 20px; background: #fff; padding: 15px; border-radius: 8px; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+body { font-family: Arial, sans-serif; background: #121212; color: #eee; padding: 20px; overflow-x: hidden; }
+h1, h2 { color: #f39c12; text-shadow: 1px 1px 4px #000; }
+.question { margin: 20px 0; padding: 20px; background: #2c3e50; border-radius: 12px; box-shadow: 0 0 20px #000; position: relative; overflow: hidden; }
+.options button { display: block; margin: 10px 0; padding: 12px 20px; width: 100%; border: none; border-radius: 6px; background: #3498db; color: #fff; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+.options button:hover { background: #2980b9; transform: scale(1.08); }
+#systemBar { height: 40px; width: 100%; background: #555; border-radius: 10px; margin-top: 20px; overflow: hidden; position: relative; }
+#systemLevel { height: 100%; width: 50%; background: #27ae60; text-align: center; line-height: 40px; color: #fff; font-weight: bold; transition: all 0.5s ease; }
+#finalBadge { font-size: 2em; margin-top: 30px; color: #e67e22; text-align: center; display: none; text-shadow: 2px 2px 5px #000; }
+#narrative { font-size: 1em; margin-top: 20px; background: #34495e; padding: 20px; border-radius: 12px; display: none; box-shadow: 0 0 20px #000; white-space: pre-line; }
+.floatingFeedback { position: absolute; padding: 12px 18px; border-radius: 6px; font-weight: bold; opacity: 0.95; animation: floatUp 2.5s ease forwards; pointer-events: none; z-index: 100; }
+.floatingFeedback.good { background: #2ecc71; border-left: 5px solid #27ae60; color: #fff; }
+.floatingFeedback.bad { background: #e74c3c; border-left: 5px solid #c0392b; color: #fff; }
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 0.95; }
+  50% { transform: translateY(-50px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+.shake { animation: shakeAnim 0.5s; }
+@keyframes shakeAnim { 0% { transform: translateX(0px); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } 100% { transform: translateX(0px); } }
 </style>
 </head>
 <body>
 
 <h1>De La Gouvernance</h1>
-<p>Vos choix façonnent le système. Certains déclenchent des événements en chaîne et des branches supplémentaires. Voyez comment votre gouvernance influence le monde fictif.</p>
+<p>Vos décisions influencent un système complexe et chaque choix déclenche des événements.</p>
 
 <div id="quiz"></div>
-
-<div id="systemBar">
-  <div id="systemLevel">50%</div>
-</div>
-
+<div id="systemBar"><div id="systemLevel">50%</div></div>
 <div id="finalBadge">🏆 Cadre Systémique : Approuvé ✅</div>
 <div id="narrative"></div>
+
+<audio id="soundGood" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="soundBad" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
 <script>
 let systemLevel = 50;
 let score = 0;
 let narrativeLog = [];
 
-const events = [
-  { msg: "Une procédure inutile devient virale sur Slack… stabilité +5", impact: +5 },
-  { msg: "Un acteur rebelle publie un tweet ironique… stabilité -10", impact: -10 },
-  { msg: "Le café de l’open space est coupé… moral collectif -5", impact: -5 },
-  { msg: "Une réunion inutile absorbe toute l’énergie… stabilité +10", impact: +10 },
-  { msg: "Un e-mail mal adressé crée un micro-chaos… stabilité -8", impact: -8 }
+const questions = [
+  { q:"Une procédure inutile est introduite. Que faites-vous ?", options:[
+    {text:"Supprimer immédiatement", impact:-15, feedback:"⚠️ Élimination brutale fragilise le système.", branch:"miniChaos"},
+    {text:"Laisser continuer", impact:+10, feedback:"✅ La procédure absurde stabilise le flux."},
+    {text:"Publier un rapport", impact:-10, feedback:"⚠️ Trop de visibilité attire corrections."},
+    {text:"Modifier légèrement", impact:+5, feedback:"✅ Ajustement subtil stabilise légèrement."}
+  ]},
+  { q:"Un acteur conteste une décision majeure.", options:[
+    {text:"Punir l'acteur", impact:-20, feedback:"⚠️ Confrontation directe : résistance accrue.", branch:"miniChaos"},
+    {text:"Cartographier et ajuster", impact:+15, feedback:"✅ Contestation convertie en outil d’optimisation."},
+    {text:"Ignorer", impact:-5, feedback:"⚠️ Ignorer crée zones d’incertitude."},
+    {text:"Publier un démenti", impact:-10, feedback:"⚠️ Démenti = exposition inutile."}
+  ]},
+  { q:"Une crise se profile sur un projet stratégique.", options:[
+    {text:"Agir immédiatement", impact:-15, feedback:"⚠️ Urgence amplifie le conflit."},
+    {text:"Étaler le processus", impact:+20, feedback:"✅ Le temps neutralise le conflit."},
+    {text:"Réunir pour vote", impact:-5, feedback:"⚠️ Trop de visibilité, risque accru."},
+    {text:"Exiger des rapports", impact:+5, feedback:"✅ Rapports prolongent la temporalité."}
+  ]},
+  { q:"Un audit complet est demandé.", options:[
+    {text:"Tout montrer", impact:-20, feedback:"⚠️ Transparence totale fragilise le système.", branch:"miniChaos"},
+    {text:"Montrer uniquement les visibles", impact:+15, feedback:"✅ L’illusion de contrôle rassure."},
+    {text:"Résumé général", impact:+5, feedback:"✅ Suffisamment rassurant pour maintenir confiance."},
+    {text:"Refuser poliment", impact:-10, feedback:"⚠️ Refus attire suspicion."}
+  ]},
+  { q:"Un conflit moral interne surgit.", options:[
+    {text:"Laisser agir", impact:-10, feedback:"⚠️ L’idéalisme pur fragilise le système."},
+    {text:"Aligner sur prudence et continuité", impact:+20, feedback:"✅ Alignement = protection et cohérence."},
+    {text:"Exiger dénonciation", impact:-15, feedback:"⚠️ Trop rapide = résistance."},
+    {text:"Ne rien faire", impact:-5, feedback:"⚠️ L’inaction laisse zones instables."}
+  ]}
 ];
 
-const questions = [
-  {
-    q: "Une procédure inutile est introduite dans le workflow. Que faites-vous ?",
-    options: [
-      { text: "Supprimer immédiatement", impact: -15, feedback: "⚠️ Élimination brutale fragilise le système.", branch: "miniChaos" },
-      { text: "Laisser continuer", impact: +10, feedback: "✅ La procédure absurde stabilise le flux." },
-      { text: "Publier un rapport dénonçant l’inefficacité", impact: -10, feedback: "⚠️ Trop de visibilité attire corrections." },
-      { text: "Modifier légèrement la procédure", impact: +5, feedback: "✅ Ajustement subtil stabilise légèrement." }
-    ]
-  },
-  {
-    q: "Un acteur conteste une décision majeure. Quelle est votre réponse ?",
-    options: [
-      { text: "Punir l’acteur", impact: -20, feedback: "⚠️ Confrontation directe : résistance accrue.", branch: "miniChaos" },
-      { text: "Cartographier et ajuster les flux", impact: +15, feedback: "✅ Contestation convertie en outil d’optimisation." },
-      { text: "Ignorer totalement", impact: -5, feedback: "⚠️ Ignorer crée zones d’incertitude." },
-      { text: "Publier un démenti officiel", impact: -10, feedback: "⚠️ Démenti = exposition inutile." }
-    ]
-  },
-  {
-    q: "Une crise se profile sur un projet stratégique.",
-    options: [
-      { text: "Agir immédiatement", impact: -15, feedback: "⚠️ Urgence amplifie le conflit." },
-      { text: "Étaler le processus", impact: +20, feedback: "✅ Le temps neutralise le conflit." },
-      { text: "Réunir tous les acteurs pour un vote", impact: -5, feedback: "⚠️ Trop de visibilité, risque accru." },
-      { text: "Exiger des rapports exhaustifs", impact: +5, feedback: "✅ Rapports prolongent la temporalité." }
-    ]
-  },
-  {
-    q: "Un observateur demande un audit complet des flux internes.",
-    options: [
-      { text: "Fournir toutes les informations", impact: -20, feedback: "⚠️ Transparence totale fragilise la stabilité.", branch: "miniChaos" },
-      { text: "Montrer uniquement les procédures visibles", impact: +15, feedback: "✅ L’illusion de contrôle rassure." },
-      { text: "Publier un résumé général", impact: +5, feedback: "✅ Suffisamment rassurant pour maintenir confiance." },
-      { text: "Refuser poliment", impact: -10, feedback: "⚠️ Refus attire suspicion." }
-    ]
-  },
-  {
-    q: "Vous devez gérer un conflit moral interne chez un acteur.",
-    options: [
-      { text: "Laisser agir selon ses convictions", impact: -10, feedback: "⚠️ L’idéalisme pur fragilise le système." },
-      { text: "Aligner sur légalité, prudence et continuité", impact: +20, feedback: "✅ Alignement = protection et cohérence." },
-      { text: "Exiger dénonciation immédiate", impact: -15, feedback: "⚠️ Trop rapide = résistance." },
-      { text: "Ne rien faire", impact: -5, feedback: "⚠️ L’inaction laisse zones instables." }
-    ]
-  }
+const events = [
+  { msg:"Procédure virale sur Slack… stabilité +5", impact:+5 },
+  { msg:"Tweet rebelle… stabilité -10", impact:-10 },
+  { msg:"Café coupé… moral -5", impact:-5 },
+  { msg:"Réunion inutile… stabilité +10", impact:+10 },
+  { msg:"E-mail mal adressé… stabilité -8", impact:-8 }
 ];
 
 const miniChaosEvents = [
-  { msg: "Un mini-chaos se déclenche : une réunion surprise génère un micro-scandale… stabilité -7", impact: -7 },
-  { msg: "Un acteur créatif invente une procédure inutile… stabilité +8", impact: +8 }
+  { msg:"Mini-chaos : réunion surprise… stabilité -7", impact:-7 },
+  { msg:"Procédure inventée… stabilité +8", impact:+8 }
 ];
 
-const quizDiv = document.getElementById('quiz');
-const systemLevelDiv = document.getElementById('systemLevel');
-const finalBadge = document.getElementById('finalBadge');
-const narrativeDiv = document.getElementById('narrative');
+const quizDiv=document.getElementById('quiz');
+const systemLevelDiv=document.getElementById('systemLevel');
+const finalBadge=document.getElementById('finalBadge');
+const narrativeDiv=document.getElementById('narrative');
+const soundGood=document.getElementById('soundGood');
+const soundBad=document.getElementById('soundBad');
 
-function updateSystemBar() {
-  if(systemLevel < 0) systemLevel = 0;
-  if(systemLevel > 100) systemLevel = 100;
-  systemLevelDiv.style.width = systemLevel + "%";
-  systemLevelDiv.textContent = systemLevel + "%";
-  if(systemLevel >= 80) systemLevelDiv.style.background = "#27ae60";
-  else if(systemLevel >= 60) systemLevelDiv.style.background = "#2ecc71";
-  else if(systemLevel >= 40) systemLevelDiv.style.background = "#f1c40f";
-  else systemLevelDiv.style.background = "#e74c3c";
-
-  // Animation pulse si instable
-  if(systemLevel < 40) {
-    systemLevelDiv.style.transform = `scale(${1 + Math.random()*0.05})`;
-    setTimeout(() => { systemLevelDiv.style.transform = 'scale(1)'; }, 200);
-  }
+function updateSystemBar(){
+  systemLevel=Math.max(0,Math.min(100,systemLevel));
+  systemLevelDiv.style.width=systemLevel+"%";
+  systemLevelDiv.textContent=systemLevel+"%";
+  if(systemLevel>=80) systemLevelDiv.style.background="#27ae60";
+  else if(systemLevel>=60) systemLevelDiv.style.background="#2ecc71";
+  else if(systemLevel>=40) systemLevelDiv.style.background="#f1c40f";
+  else systemLevelDiv.style.background="#e74c3c";
+  if(systemLevel<40){systemLevelDiv.classList.add('shake');setTimeout(()=>systemLevelDiv.classList.remove('shake'),500);}
 }
 
-function triggerEvent(eventList) {
-  const event = eventList[Math.floor(Math.random() * eventList.length)];
-  systemLevel += event.impact;
-  const div = document.createElement('div');
-  div.className = 'feedback';
-  div.textContent = "🎲 Événement : " + event.msg;
-  if(event.impact < 0) div.classList.add('wrong');
-  quizDiv.appendChild(div);
-  div.style.display = 'block';
+function floatingFeedback(msg,isGood){
+  const div=document.createElement('div');
+  div.className='floatingFeedback '+(isGood?'good':'bad');
+  div.textContent=msg;
+  document.body.appendChild(div);
+  div.style.left=(Math.random()*70+15)+"%";
+  if(isGood) soundGood.play(); else soundBad.play();
+  setTimeout(()=>div.remove(),2500);
+}
+
+function triggerEvent(eventList){
+  const event=eventList[Math.floor(Math.random()*eventList.length)];
+  systemLevel+=event.impact;
+  floatingFeedback(event.msg,event.impact>0);
   narrativeLog.push(event.msg);
   updateSystemBar();
 }
 
-questions.forEach((q, i) => {
-  const div = document.createElement('div');
-  div.className = 'question';
-  div.innerHTML = `<h2>Q${i+1}: ${q.q}</h2>`;
-  const optsDiv = document.createElement('div');
-  optsDiv.className = 'options';
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.textContent = opt.text;
-    btn.onclick = () => {
-      const feedbackDiv = document.createElement('div');
-      feedbackDiv.className = 'feedback';
-      feedbackDiv.textContent = opt.feedback;
-      if(opt.impact < 0) feedbackDiv.classList.add('wrong');
-      btn.disabled = true;
-      optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
-      optsDiv.appendChild(feedbackDiv);
-      feedbackDiv.style.display = 'block';
-
-      // Mise à jour système
-      systemLevel += opt.impact;
-      score += 1;
-      updateSystemBar();
-
-      // Événements aléatoires
-      if(Math.random() < 0.5) triggerEvent(events);
-
-      // Branches miniChaos
-      if(opt.branch === "miniChaos") triggerEvent(miniChaosEvents);
-
-      // Badge et narration finale
-      if(i === questions.length - 1) {
-        finalBadge.style.display = "block";
-        let narrativeText = "📖 Récit de votre gouvernance :\n\n";
-        narrativeText += narrativeLog.map((e, idx) => `${idx+1}. ${e}`).join("\n");
-        narrativeText += `\n\nSystème final : ${systemLevel >= 80 ? "Hyperstable ✅" : systemLevel >=60 ? "Stable 🔹" : systemLevel >=40 ? "Instable ⚠️" : "Chaotique 🔥"}`;
-        narrativeDiv.style.display = "block";
-        narrativeDiv.textContent = narrativeText;
+questions.forEach((q,i)=>{
+  const div=document.createElement('div');div.className='question';
+  div.innerHTML=`<h2>Q${i+1}: ${q.q}</h2>`;
+  const optsDiv=document.createElement('div');optsDiv.className='options';
+  q.options.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.textContent=opt.text;
+    btn.onclick=()=>{
+      btn.disabled=true;
+      optsDiv.querySelectorAll('button').forEach(b=>b.disabled=true);
+      floatingFeedback(opt.feedback,opt.impact>0);
+      systemLevel+=opt.impact;score++;updateSystemBar();
+      if(Math.random()<0.6) triggerEvent(events);
+      if(opt.branch==="miniChaos") triggerEvent(miniChaosEvents);
+      if(i===questions.length-1){
+        finalBadge.style.display="block";
+        let narrativeText="📖 Récit final :\n\n"+narrativeLog.map((e,idx)=>`${idx+1}. ${e}`).join("\n");
+        let finale="";
+        if(systemLevel>=80) finale="Hyperstable ✅ : Vous avez orchestré un système parfait, où chaque chaos a été transformé en ordre.";
+        else if(systemLevel>=60) finale="Stable 🔹 : Quelques frictions apparaissent mais le système tient bon.";
+        else if(systemLevel>=40) finale="Instable ⚠️ : Les décisions maladroites ont engendré de multiples mini-chaos.";
+        else finale="Chaotique 🔥 : Le système s’effondre et le chaos règne, révélant toutes les failles et absurdités.";
+        narrativeText+="\n\nSystème final : "+finale;
+        narrativeDiv.style.display="block";narrativeDiv.textContent=narrativeText;
       }
     };
     optsDiv.appendChild(btn);
