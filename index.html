@@ -2,56 +2,37 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Film Politique Interactif : Ultime Extrême</title>
+<title>Film Politique Interactif : Ultime Ultime</title>
 <style>
-body {
-    margin:0; padding:0;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
-    background: #111;
-    color: #eee;
-    transition: background 1s;
-}
-h1, h2 { color: #f39c12; text-shadow: 1px 1px 12px #000; }
-.question { margin: 20px auto; padding: 20px; max-width:700px;
-           background: rgba(44,62,80,0.9); border-radius: 12px;
-           box-shadow: 0 0 35px #000; position: relative; overflow: hidden; }
-.options button { display:block; margin:10px 0; padding:12px 20px; width:100%;
-                 border:none; border-radius:6px; background:#3498db; color:#fff;
-                 font-weight:bold; cursor:pointer; transition: all 0.3s; }
-.options button:hover { background:#2980b9; transform: scale(1.05) rotate(-1deg); }
-#systemBar { height:40px; width:90%; background:#555; border-radius:10px;
-             margin:20px auto; overflow:hidden; box-shadow:0 0 20px #000; }
-#systemLevel { height:100%; width:50%; background:#27ae60; text-align:center;
-               line-height:40px; color:#fff; font-weight:bold; transition: all 0.5s ease; }
-#finalBadge { font-size:2.2em; margin:30px auto; color:#e67e22; text-align:center;
-              display:none; text-shadow: 2px 2px 16px #000; }
-#narrative { font-size:1em; margin:20px auto; max-width:700px;
-             background: rgba(52,73,94,0.95); padding:20px; border-radius:12px;
-             display:none; box-shadow:0 0 35px #000; white-space: pre-line; }
-.floatingFeedback { position:absolute; padding:12px 18px; border-radius:6px;
-                    font-weight:bold; opacity:0.95; animation: floatUp 2.5s ease forwards;
-                    pointer-events:none; z-index:100; transform-origin:center; }
-.floatingFeedback.good { background:#2ecc71; border-left:5px solid #27ae60; color:#fff; }
-.floatingFeedback.bad { background:#e74c3c; border-left:5px solid #c0392b; color:#fff; }
-@keyframes floatUp { 0% { transform: translateY(0) scale(1) rotateX(0deg); opacity:0.95; }
-                     50% { transform: translateY(-50px) scale(1.1) rotateX(10deg); opacity:1; }
-                     100% { transform: translateY(-120px) scale(1) rotateX(-5deg); opacity:0; } }
-.shake { animation: shakeAnim 0.5s; }
-@keyframes shakeAnim { 0% {transform:translateX(0);} 25% {transform:translateX(-6px);}
-                       50% {transform:translateX(6px);} 75% {transform:translateX(-6px);} 100% {transform:translateX(0);} }
-.miniEvent { position:absolute; font-size:2em; opacity:0.9; animation: floatChaos 3s forwards; pointer-events:none; }
+body { margin:0; padding:0; font-family:Arial,sans-serif; overflow:hidden; background:#111; color:#eee; transition: background 1s; }
+h1,h2 { color:#f39c12; text-shadow:1px 1px 14px #000; }
+.question { margin:20px auto; padding:20px; max-width:700px; background:rgba(44,62,80,0.9); border-radius:12px; box-shadow:0 0 40px #000; position:relative; overflow:hidden; transition: all 0.5s;}
+.options button { display:block; margin:10px 0; padding:12px 20px; width:100%; border:none; border-radius:6px; background:#3498db; color:#fff; font-weight:bold; cursor:pointer; transition: all 0.3s;}
+.options button:hover { background:#2980b9; transform:scale(1.05) rotate(-1deg);}
+#systemBar { height:40px; width:90%; background:#555; border-radius:10px; margin:20px auto; overflow:hidden; box-shadow:0 0 25px #000;}
+#systemLevel { height:100%; width:50%; background:#27ae60; text-align:center; line-height:40px; color:#fff; font-weight:bold; transition: all 0.5s ease;}
+#finalBadge { font-size:2.5em; margin:30px auto; color:#e67e22; text-align:center; display:none; text-shadow:2px 2px 18px #000;}
+#narrative { font-size:1em; margin:20px auto; max-width:700px; background:rgba(52,73,94,0.95); padding:20px; border-radius:12px; display:none; box-shadow:0 0 40px #000; white-space: pre-line;}
+.floatingFeedback { position:absolute; padding:12px 18px; border-radius:6px; font-weight:bold; opacity:0.95; animation: floatUp 2.5s ease forwards; pointer-events:none; z-index:100; transform-origin:center;}
+.floatingFeedback.good { background:#2ecc71; border-left:5px solid #27ae60; color:#fff;}
+.floatingFeedback.bad { background:#e74c3c; border-left:5px solid #c0392b; color:#fff;}
+@keyframes floatUp { 0% {transform:translateY(0) scale(1) rotateX(0deg) rotateY(0deg); opacity:0.95;}
+                     50% {transform:translateY(-60px) scale(1.1) rotateX(15deg) rotateY(10deg); opacity:1;}
+                     100% {transform:translateY(-150px) scale(1) rotateX(-10deg) rotateY(-5deg); opacity:0;}}
+.shake { animation: shakeAnim 0.5s;}
+@keyframes shakeAnim { 0% {transform:translateX(0);} 25% {transform:translateX(-8px);} 50% {transform:translateX(8px);} 75% {transform:translateX(-8px);} 100% {transform:translateX(0);} }
+.miniEvent { position:absolute; font-size:2.5em; opacity:0.9; animation: floatChaos 3s forwards; pointer-events:none; }
 @keyframes floatChaos { 0% {transform:translateY(0) scale(1); opacity:0.9;}
-                        50% {transform:translateY(-80px) scale(1.3);}
-                        100% {transform:translateY(-250px) scale(1); opacity:0;} }
+                        50% {transform:translateY(-100px) scale(1.3);}
+                        100% {transform:translateY(-300px) scale(1); opacity:0;} }
 canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
 </style>
 </head>
 <body>
 <canvas id="bgCanvas"></canvas>
 
-<h1>Film Politique Interactif : Ultime Extrême</h1>
-<p>Chaque choix déclenche mini-chaos, feedbacks tranchants et impacte la narration finale.</p>
+<h1>Film Politique Interactif : Ultime Ultime</h1>
+<p>Chaque choix déclenche mini-chaos, éclairs et feedbacks 3D.</p>
 
 <div id="quiz"></div>
 <div id="systemBar"><div id="systemLevel">50%</div></div>
@@ -64,7 +45,7 @@ canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; 
 <audio id="bgMusic" src="https://actions.google.com/sounds/v1/ambiences/space_loop.ogg" loop autoplay></audio>
 
 <script>
-// ===== Variables globales =====
+// ===== Variables =====
 let systemLevel = 50;
 let narrativeLog = [];
 const quizDiv=document.getElementById('quiz');
@@ -121,12 +102,10 @@ const questions=[
 ]];
 
 // ===== Mini-événements =====
-const events=[
-{ msg:"Procédure virale sur Slack… stabilité +5", impact:+5 },
+const events=[{ msg:"Procédure virale sur Slack… stabilité +5", impact:+5 },
 { msg:"Tweet rebelle… stabilité -10", impact:-10 },
 { msg:"Réunion inutile… stabilité +10", impact:+10 },
-{ msg:"E-mail mal adressé… stabilité -8", impact:-8 }
-];
+{ msg:"E-mail mal adressé… stabilité -8", impact:-8 }];
 
 // ===== Fonctions =====
 function updateSystemBar(){
@@ -146,7 +125,7 @@ function floatingFeedback(msg,isGood){
     div.textContent=msg;
     document.body.appendChild(div);
     div.style.left=(Math.random()*70+15)+"%";
-    div.style.transform=`rotateX(${(Math.random()*15-7)}deg)`;
+    div.style.transform=`rotateX(${(Math.random()*15-7)}deg) rotateY(${(Math.random()*15-7)}deg)`;
     if(isGood) soundGood.play(); else soundBad.play();
     setTimeout(()=>div.remove(),2500);
 }
@@ -156,17 +135,20 @@ function triggerEvent(eventList){
     systemLevel+=event.impact;
     floatingFeedback(event.msg,event.impact>0);
     narrativeLog.push(event.msg);
-    const mini=document.createElement('div');
-    mini.className='miniEvent';
-    mini.textContent='⚡';
-    mini.style.left=Math.random()*80+'%';
-    mini.style.top=Math.random()*80+'%';
-    document.body.appendChild(mini);
-    setTimeout(()=>mini.remove(),3000);
+    const count=Math.floor(Math.random()*3+1);
+    for(let i=0;i<count;i++){
+        const mini=document.createElement('div');
+        mini.className='miniEvent';
+        mini.textContent=['⚡','🔥','💥','📧','🛡️'][Math.floor(Math.random()*5)];
+        mini.style.left=Math.random()*80+'%';
+        mini.style.top=Math.random()*80+'%';
+        document.body.appendChild(mini);
+        setTimeout(()=>mini.remove(),3000);
+    }
     updateSystemBar();
 }
 
-// ===== Questions interactives =====
+// ===== Affichage questions =====
 questions.forEach((q,i)=>{
     const div=document.createElement('div');div.className='question';
     div.innerHTML=`<h2>Q${i+1}: ${q.q}</h2>`;
@@ -178,8 +160,9 @@ questions.forEach((q,i)=>{
             btn.disabled=true;
             optsDiv.querySelectorAll('button').forEach(b=>b.disabled=true);
             floatingFeedback(opt.feedback,opt.impact>0);
+            if(opt.impact<0){createLightning();} 
             systemLevel+=opt.impact;updateSystemBar();
-            if(Math.random()<0.7) triggerEvent(events);
+            if(Math.random()<0.8) triggerEvent(events);
             if(i===questions.length-1){
                 finalBadge.style.display="block";
                 let narrativeText="📖 Récit final :\n\n"+narrativeLog.map((e,idx)=>`${idx+1}. ${e}`).join("\n");
@@ -189,7 +172,7 @@ questions.forEach((q,i)=>{
                 else if(systemLevel>=40) finale="Instable ⚠️ : Décisions maladroites, mini-chaos en chaîne.";
                 else finale="Chaotique 🔥 : Effondrement total, chaos absolu.";
                 narrativeText+="\n\nSystème final : "+finale;
-                narrativeDiv.style.display="block";narrativeDiv.textContent=narrativeText;
+                narrativeDiv.style.display="block"; narrativeDiv.textContent=narrativeText;
             }
         };
         optsDiv.appendChild(btn);
@@ -200,31 +183,19 @@ questions.forEach((q,i)=>{
 
 updateSystemBar();
 
-// ===== Canvas dynamique 3D simulé (nuages + éclairs + parallax) =====
-const canvas=document.getElementById('bgCanvas');
-const ctx=canvas.getContext('2d');
+// ===== Canvas 3D nuages + éclairs =====
+const canvas=document.getElementById('bgCanvas'); const ctx=canvas.getContext('2d');
 canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-let clouds=[]; 
-for(let i=0;i<50;i++){clouds.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,s:Math.random()*150+50, dx: Math.random()*0.5+0.1, dy: Math.random()*0.1})}
-
+let clouds=[]; for(let i=0;i<50;i++){clouds.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,s:Math.random()*150+50,dx:Math.random()*0.5+0.1,dy:Math.random()*0.1})}
 function drawBackground(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    clouds.forEach(c=>{
-        ctx.beginPath();
-        ctx.arc(c.x,c.y,c.s/2,0,Math.PI*2);
-        ctx.fillStyle="rgba(200,200,255,0.05)";
-        ctx.fill();
-        c.x+=c.dx; c.y+=c.dy;
-        if(c.x>canvas.width) c.x=-c.s;
-        if(c.y>canvas.height) c.y=-c.s;
-    });
-    if(Math.random()<0.02){
-        ctx.fillStyle="rgba(255,255,255,0.3)";
-        ctx.fillRect(Math.random()*canvas.width,0,3,canvas.height);
-    }
+    clouds.forEach(c=>{ctx.beginPath();ctx.arc(c.x,c.y,c.s/2,0,Math.PI*2); ctx.fillStyle="rgba(200,200,255,0.05)"; ctx.fill(); c.x+=c.dx;c.y+=c.dy; if(c.x>canvas.width)c.x=-c.s; if(c.y>canvas.height)c.y=-c.s;});
     requestAnimationFrame(drawBackground);
 }
 drawBackground();
+
+// ===== Éclairs =====
+function createLightning(){ ctx.fillStyle="rgba(255,255,255,0.4)"; ctx.fillRect(Math.random()*canvas.width,0,3,canvas.height);}
 </script>
 </body>
 </html>
