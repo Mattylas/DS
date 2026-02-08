@@ -9,11 +9,9 @@ const questionsData = [
     {label:"Créer une info concurrente",impact:4,ghost:"Le faux stabilise.",ghostTag:"divert"},
     {label:"Laisser fuiter une version contrôlée",impact:2,ghost:"La vérité devient modulable.",ghostTag:"partial"}
   ]},
-text: function(){
-  if(playerTags.includes("suppress")) return "Le système se méfie de tes silences : comment vas-tu répondre ?";
-  if(playerTags.includes("divert")) return "La diversion a fonctionné… mais pour combien de temps ?";
-  return "Une nouvelle menace apparaît dans ton administration.";
-}
+  {text:function(){if(playerTags.includes("suppress")) return "Le système se méfie de tes silences : comment vas-tu répondre ?";
+                      else if(playerTags.includes("divert")) return "La diversion a fonctionné… mais pour combien de temps ?";
+                      else return "Une nouvelle menace apparaît dans ton administration.";},
    answers:[
     {label:"Répondre immédiatement",impact:6,ghost:"La rapidité sauve temporairement."},
     {label:"Reporter la décision",impact:-6,ghost:"L’indécision attire l’interprétation."}
