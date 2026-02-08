@@ -25,6 +25,8 @@ h1,h2 { color:#f39c12; text-shadow:1px 1px 14px #000; text-align:center; }
                         50% {transform:translateY(-100px) scale(1.3);}
                         100% {transform:translateY(-300px) scale(1); opacity:0;} }
 canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
+.shake { animation: shakeAnim 0.5s;}
+@keyframes shakeAnim { 0% {transform:translateX(0);} 25% {transform:translateX(-8px);} 50% {transform:translateX(8px);} 75% {transform:translateX(-8px);} 100% {transform:translateX(0);} }
 </style>
 </head>
 <body>
@@ -57,6 +59,7 @@ const soundGood=document.getElementById('soundGood');
 const soundBad=document.getElementById('soundBad');
 const soundChaos=document.getElementById('soundChaos');
 
+// ===== Questions enrichies (12 questions) =====
 const questions=[
 { q:"Une procédure inutile est introduite. Que faites-vous ?", options:[
 {text:"Supprimer immédiatement", impact:-15, feedback:"⚡ Brutal mais nécessaire ? Fragilise le système."},
@@ -75,11 +78,69 @@ const questions=[
 {text:"Étaler le processus", impact:+20, feedback:"✅ Le temps neutralise le conflit."},
 {text:"Réunir pour vote", impact:-5, feedback:"⚠️ Trop de visibilité."},
 {text:"Exiger des rapports", impact:+5, feedback:"✅ Rapports prolongent la temporalité."}
+]},
+{ q:"Un audit complet est demandé.", options:[
+{text:"Tout montrer", impact:-20, feedback:"⚠️ Transparence totale fragilise."},
+{text:"Montrer uniquement les visibles", impact:+15, feedback:"✅ Illusion de contrôle rassurante."},
+{text:"Résumé général", impact:+5, feedback:"✅ Suffisant pour confiance."},
+{text:"Refuser poliment", impact:-10, feedback:"⚠️ Refus attire suspicion."}
+]},
+{ q:"Une fuite médiatique éclate.", options:[
+{text:"Désarmer avec humour", impact:+10, feedback:"✅ Retour habile."},
+{text:"Ignorer complètement", impact:-5, feedback:"⚠️ Silence = rumeurs."},
+{text:"Répression directe", impact:-20, feedback:"💥 Risque de mini-chaos."},
+{text:"Déformer légèrement", impact:+5, feedback:"✅ Subtil ajustement narratif."}
+]},
+{ q:"Un espion interne est soupçonné.", options:[
+{text:"Traquer sans pitié", impact:-20, feedback:"💥 Chaos interne."},
+{text:"Observer discrètement", impact:+15, feedback:"✅ Prudence = gain stratégique."},
+{text:"Publier accusation", impact:-10, feedback:"⚠️ Risque réputation."},
+{text:"Ignorer", impact:-5, feedback:"⚠️ Laisser la menace croître."}
+]},
+{ q:"Une opportunité internationale se présente.", options:[
+{text:"Exploiter agressivement", impact:+20, feedback:"✅ Gain maximal mais risqué."},
+{text:"Analyser longuement", impact:+10, feedback:"👍 Stabilité accrue."},
+{text:"Ignorer", impact:-10, feedback:"⚠️ Opportunité perdue."},
+{text:"Reporter décision", impact:+5, feedback:"✅ Risque minimisé."}
+]},
+{ q:"Un scandale interne éclate.", options:[
+{text:"Couper la tête du responsable", impact:-20, feedback:"💥 Punition spectaculaire, mais fragilise loyauté."},
+{text:"Médiatiser pour détourner", impact:-5, feedback:"⚠️ Risque de chaos médiatique."},
+{text:"Réparer discrètement", impact:+15, feedback:"✅ Subtil et efficace."},
+{text:"Ignorer", impact:-10, feedback:"⚠️ Laisser pourrir le scandale."}
+]},
+{ q:"Une loi controversée doit passer.", options:[
+{text:"Imposer sans débat", impact:-15, feedback:"⚠️ Autoritarisme = tension."},
+{text:"Consulter et amender", impact:+10, feedback:"✅ Consensus partiel atteint."},
+{text:"Reporter", impact:+5, feedback:"✅ Retarder = stabiliser."},
+{text:"Laisser le parlement gérer", impact:-5, feedback:"⚠️ Chaos parlementaire."}
+]},
+{ q:"Une rumeur circule sur vos collaborateurs.", options:[
+{text:"Nier publiquement", impact:-10, feedback:"⚠️ Négation = méfiance accrue."},
+{text:"Vérifier et corriger", impact:+15, feedback:"✅ Gestion prudente."},
+{text:"Exploiter pour manipuler", impact:+20, feedback:"✅ Contrôle subtil renforcé."},
+{text:"Ignorer", impact:-5, feedback:"⚠️ Risque propagation."}
+]},
+{ q:"Une attaque cyber-menace vos données.", options:[
+{text:"Bloquer et punir", impact:-15, feedback:"⚠️ Riposte visible = tensions."},
+{text:"Isoler et corriger", impact:+15, feedback:"✅ Neutralisation efficace."},
+{text:"Simuler attaque interne", impact:-10, feedback:"⚠️ Confusion totale."},
+{text:"Ignorer", impact:-20, feedback:"💥 Désastre inévitable."}
+]},
+{ q:"Un média tente de révéler un secret.", options:[
+{text:"Soudoyer la publication", impact:+15, feedback:"✅ Manipulation réussie."},
+{text:"Nier et menacer", impact:-15, feedback:"⚠️ Effet boomerang probable."},
+{text:"Ignorer", impact:-5, feedback:"⚠️ Laisser circuler = fragilité."},
+{text:"Publier une version alternative", impact:+10, feedback:"✅ Contournement créatif."}
 ]}];
 
+// ===== Mini-événements =====
 const events=[{ msg:"Procédure virale… stabilité +5", impact:+5 },
-{ msg:"Tweet rebelle… stabilité -10", impact:-10 }];
+{ msg:"Tweet rebelle… stabilité -10", impact:-10 },
+{ msg:"Réunion inutile… stabilité +10", impact:+10 },
+{ msg:"E-mail mal adressé… stabilité -8", impact:-8 }];
 
+// ===== Fonctions =====
 function updateSystemBar(){
     systemLevel=Math.max(0,Math.min(100,systemLevel));
     systemLevelDiv.style.width=systemLevel+"%";
