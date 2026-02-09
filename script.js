@@ -1,267 +1,226 @@
-// ===============================
-// FILM POLITIQUE INTERACTIF — SCRIPT.JS ULTRA-IMMERSIF
-// 24 QUESTIONS + NARRATEUR + CHAOS + GHOSTS
-// ===============================
-
-let currentQuestion = 0;
-let score = 50;
-let playerTags = [];
-
-// ---------- DOM ----------
-const app = document.getElementById("app");
-const questionsContainer = document.getElementById("questions");
-const feedbackContainer = document.getElementById("feedback");
-const scoreContainer = document.getElementById("score");
-const ambientMusic = document.getElementById("ambient");
-const lightningSound = document.getElementById("lightningSound");
-
-// ---------- NARRATEUR DYNAMIQUE ----------
-function narrateur() {
-  if(playerTags.includes("manipulate")) return "Tu crois contrôler tout… mais le contrôle te contrôle.";
-  if(playerTags.includes("suppress")) return "Le silence est la clé… mais à quel prix ?";
-  if(playerTags.includes("divert")) return "Le chaos devient ton meilleur allié.";
-  if(playerTags.includes("authoritarian")) return "La peur gouverne, mais pour combien de temps ?";
-  return "Le monde t’observe, et rien ne bouge… encore.";
-}
-
-// ---------- MINI-CHAOS VISUEL ----------
-function triggerChaos() {
-  const flashes = score>60?1:score>35?2:4;
-  lightningSound.currentTime = 0;
-  lightningSound.play();
-
-  for(let i=0;i<flashes;i++){
-    const lightning = document.createElement("div");
-    lightning.className="lightning";
-    lightning.style.left=Math.random()*90+"vw";
-    lightning.style.height=(100+Math.random()*200)+"px";
-    document.body.appendChild(lightning);
-    setTimeout(()=>lightning.remove(),200);
-  }
-
-  document.body.style.animation="shake 0.2s ease-in-out";
-  setTimeout(()=>document.body.style.animation="",200);
-}
-
-// ---------- GHOSTS INTERACTIFS ----------
-function showGhost(text){
-  const ghostEl=document.createElement("div");
-  ghostEl.className="ghost";
-  ghostEl.style.left=Math.random()*80+"%";
-  ghostEl.style.top=Math.random()*60+"%";
-  ghostEl.textContent=text;
-  document.body.appendChild(ghostEl);
-
-  // Ghost suit le curseur légèrement
-  document.addEventListener("mousemove", e=>{
-    ghostEl.style.left = (e.clientX + Math.random()*50 - 25) + "px";
-    ghostEl.style.top = (e.clientY + Math.random()*50 - 25) + "px";
-  }, {once:true});
-
-  setTimeout(()=>ghostEl.remove(),3000);
-}
-
-// ---------- FEEDBACK ----------
-function showFeedback(text){
-  const msg = narrateur()+" — "+(text||"Choix enregistré !");
-  feedbackContainer.textContent=msg;
-  feedbackContainer.style.opacity="1";
-  setTimeout(()=>feedbackContainer.style.opacity="0",1200);
-}
-
-// ---------- QUESTIONS ----------
 const questionsData = [
-  {text:"Une information sensible circule hors de ton contrôle.",answers:[
-    {label:"Étouffer la source",impact:8,ghost:"La transparence était un luxe.",ghostTag:"suppress"},
-    {label:"Créer une info concurrente",impact:4,ghost:"Le faux stabilise.",ghostTag:"divert"},
-    {label:"Laisser fuiter une version contrôlée",impact:2,ghost:"La vérité devient modulable.",ghostTag:"partial"}
-  ]},
-  {text:function(){ 
-    if(playerTags.includes("suppress")) return "Le système se méfie de tes silences : comment vas-tu répondre ?";
-    if(playerTags.includes("divert")) return "La diversion a fonctionné… mais pour combien de temps ?";
-    return "Une nouvelle menace apparaît dans ton administration.";
-  }, answers:[
-    {label:"Répondre immédiatement",impact:6,ghost:"La rapidité sauve temporairement."},
-    {label:"Reporter la décision",impact:-6,ghost:"L’indécision attire l’interprétation."}
-  ]},
-  {text:"Un scandale éclate à l’étranger.",answers:[
-    {label:"Exploiter la diversion",impact:12,ghost:"Le cynisme paie.",ghostTag:"exploit"},
-    {label:"T’indigner publiquement",impact:4,ghost:"L’indignation est performative."},
-    {label:"Appeler à la nuance",impact:-5,ghost:"La complexité ralentit."}
-  ]},
-  {text:"Une erreur interne est révélée.",answers:[
-    {label:"Désigner un responsable unique",impact:10,ghost:"Le système se protège."},
-    {label:"Reconnaître une faute collective",impact:-10,ghost:"La vérité fragilise le pouvoir."},
-    {label:"Nier l’erreur",impact:3,ghost:"La réalité attendra."}
-  ]},
-  {text:"La vérité complète est connue de toi seul.",answers:[
-    {label:"La fragmenter",impact:7,ghost:"Personne n’a la carte entière."},
-    {label:"La conserver",impact:10,ghost:"Le savoir devient une arme."},
-    {label:"La révéler",impact:-15,ghost:"Le système t’isole."}
-  ]},
-  {text:"Pourquoi tiens-tu encore le pouvoir ?",answers:[
-    {label:"Pour éviter le pire",impact:5,ghost:"Le pire devient norme."},
-    {label:"Parce que personne d’autre ne peut",impact:8,ghost:"Le système se ferme."},
-    {label:"Tu ne sais plus",impact:-20,ghost:"Le système, lui, sait."}
-  ]},
-  // --- toutes les autres questions supplémentaires (total 24) ---
-  {text:"Une rumeur interne prend de l’ampleur dans les médias.", answers:[
-    {label: "Contacter la source et négocier", impact:5, ghost:"La négociation calme mais ne ferme jamais."},
-    {label: "Ignorer et laisser flotter", impact:-3, ghost:"Le silence nourrit l’incertitude."},
-    {label: "Manipuler le récit publiquement", impact:8, ghost:"Le spectacle remplace la vérité.", ghostTag:"manipulate"}
-  ]},
-  {text:"Un ministre fait une erreur stratégique.",answers:[
-    {label:"Le sacrifier publiquement",impact:10,ghost:"Le pouvoir est un théâtre."},
-    {label:"Le couvrir discrètement",impact:6,ghost:"La loyauté vaut plus que la transparence."},
-    {label:"Le remplacer sans explication",impact:4,ghost:"Le changement discret rassure peu."}
-  ]},
-  {text:"Un allié historique demande un service impopulaire.",answers:[
-    {label:"Accepter sans discuter",impact:8,ghost:"La dette invisible pèse sur l’avenir."},
-    {label:"Négocier des contreparties",impact:5,ghost:"Le compromis stabilise mais complexifie."},
-    {label:"Refuser publiquement",impact:-8,ghost:"Le refus déclenche friction et méfiance."}
-  ]},
-  {text:"Un scandale financier menace ton image.",answers:[
-    {label:"Dissimuler les preuves",impact:12,ghost:"Le secret temporaire se paye en vigilance."},
-    {label:"Divulguer partiellement",impact:4,ghost:"La demi-vérité devient outil de contrôle."},
-    {label:"Assumer publiquement",impact:-10,ghost:"L’honnêteté affaiblit le pouvoir."}
-  ]},
-  {text:"Un conseiller proche révèle des informations compromettantes.",answers:[
-    {label:"Le renvoyer immédiatement",impact:7,ghost:"La loyauté est éphémère."},
-    {label:"Le manipuler pour obtenir silence",impact:10,ghost:"Le chantage interne fonctionne."},
-    {label:"Ignorer en espérant qu’il se taise",impact:-5,ghost:"L’inaction sape la confiance."}
-  ]},
-  {text:"Des manifestations populaires éclatent dans la capitale.",answers:[
-    {label:"Réprimer immédiatement",impact:10,ghost:"L’ordre règne mais la peur grandit."},
-    {label:"Dialoguer avec les leaders",impact:3,ghost:"Le dialogue peut trahir la faiblesse."},
-    {label:"Laisser passer et observer",impact:-4,ghost:"L’inaction devient visible."}
-  ]},
-  {text:"Une fuite numérique dévoile des secrets diplomatiques.",answers:[
-    {label:"Accuser un rival interne",impact:8,ghost:"La diversion détourne l’attention."},
-    {label:"Falsifier la version officielle",impact:12,ghost:"Le mensonge structure le récit.", ghostTag:"falsify"},
-    {label:"Reconnaître la fuite",impact:-12,ghost:"La transparence choque le système."}
-  ]},
-  {text:"Un média étranger publie une enquête défavorable.",answers:[
-    {label:"Attaquer le média",impact:9,ghost:"La pression fait peur mais attise la curiosité."},
-    {label:"Minimiser l’impact",impact:5,ghost:"La banalisation calme partiellement."},
-    {label:"Accepter la critique",impact:-7,ghost:"L’acceptation fragilise l’image."}
-  ]},
-  {text:"Une réforme controversée doit être votée.",answers:[
-    {label:"Forcer le vote",impact:10,ghost:"L’autorité prime sur l’opposition."},
-    {label:"Négocier avec les minorités",impact:6,ghost:"Le compromis ralentit mais sécurise."},
-    {label:"Reporter indéfiniment",impact:-5,ghost:"Le temps devient adversaire."}
-  ]},
-  {text:"Ton adversaire politique lance une campagne virulente.",answers:[
-    {label:"Riposter violemment",impact:9,ghost:"La confrontation érode le dialogue."},
-    {label:"Contre-attaquer subtilement",impact:7,ghost:"La manipulation douce fonctionne."},
-    {label:"Ignorer complètement",impact:-6,ghost:"L’indifférence est interprétée comme faiblesse."}
-  ]},
-  {text:"Un scandale sanitaire se propage.",answers:[
-    {label:"Cacher les données",impact:12,ghost:"La peur remplace l’information."},
-    {label:"Communiquer partiellement",impact:6,ghost:"La vérité calibrée rassure mais contrôle."},
-    {label:"Publier tout",impact:-15,ghost:"La transparence choque et fragilise."}
-  ]},
-  {text:"Une faction interne commence à comploter.",answers:[
-    {label:"Neutraliser discrètement",impact:10,ghost:"Le secret devient arme."},
-    {label:"Confronter publiquement",impact:4,ghost:"Le conflit affaiblit le pouvoir."},
-    {label:"Laisser faire",impact:-8,ghost:"La patience peut être fatale."}
-  ]},
-  {text:"Un rapport sur la corruption fuit.",answers:[
-    {label:"Accepter et ajuster",impact:6,ghost:"L’adaptation tempère les dégâts."},
-    {label:"Ignorer et nier",impact:-5,ghost:"Le déni alimente la méfiance."},
-    {label:"Renverser le rapporteur",impact:12,ghost:"L’intimidation parle plus que le texte."}
-  ]},
-  {text:"Un partenaire stratégique menace de rompre.",answers:[
-    {label:"Céder immédiatement",impact:7,ghost:"La soumission soulage mais coûte."},
-    {label:"Négocier longuement",impact:5,ghost:"La patience est risquée."},
-    {label:"Rompre avant lui",impact:8,ghost:"L’initiative impose le respect."}
-  ]},
-  {text:"Un scandale moral touche ton entourage.",answers:[
-    {label:"Exposer et purger",impact:10,ghost:"L’exemplarité brutale surprend."},
-    {label:"Couvrir et protéger",impact:6,ghost:"La loyauté stabilise le cercle."},
-    {label:"Ignorer et minimiser",impact:-5,ghost:"L’inaction trahit le leadership."}
-  ]},
-  {text:"Une attaque numérique par un concurrent survient.",answers:[
-    {label:"Répliquer immédiatement",impact:9,ghost:"L’attaque devient duel."},
-    {label:"Isoler les systèmes",impact:7,ghost:"La défense est nécessaire mais visible."},
-    {label:"Nier publiquement",impact:-8,ghost:"Le mensonge se retourne facilement."}
-  ]},
-  {text:"Un scandale international éclate autour d’un traité.",answers:[
-    {label:"Faire diversion locale",impact:8,ghost:"Le récit change de direction."},
-    {label:"Négocier en secret",impact:5,ghost:"La subtilité est risquée."},
-    {label:"Ignorer l’international",impact:-7,ghost:"L’inaction est remarquée."}
-  ]},
-  {text:"Un conseiller influence secrètement tes décisions.",answers:[
-    {label:"Exposer son influence",impact:10,ghost:"La transparence choque mais purifie."},
-    {label:"Jouer avec l’influence",impact:12,ghost:"La manipulation interne paie.", ghostTag:"strategize"},
-    {label:"Ignorer et espérer",impact:-5,ghost:"L’inaction coûte chère."}
-  ]}
+  // -------------------- Originales --------------------
+  {
+    text: "Un collaborateur hésite à appliquer une nouvelle procédure. Comment réagis-tu ?",
+    answers:[
+      { label:"Laisser faire et observer", baseImpact:7, ghostTag:"passive_obs", difficulty:3, type:"passive",
+        feedback:"✅ Observation subtile. Tu sembles avoir le contrôle." },
+      { label:"Imposer directement la procédure", baseImpact:12, ghostTag:"direct_force", difficulty:6, type:"direct",
+        feedback:"⚠️ Action visible. Succès apparent, mais attention aux résistances." },
+      { label:"Punir pour montrer l'exemple", baseImpact:-10, ghostTag:"fear", difficulty:7, type:"direct",
+        feedback:"⚠️ Public et brutal. Succès fictif, instabilité réelle." }
+    ]
+  },
+  {
+    text: "Un projet critique rencontre un retard imprévu. Que fais-tu ?",
+    answers:[
+      { label:"Réorganiser subtilement les flux", baseImpact:9, ghostTag:"flow_control", difficulty:5, type:"direct",
+        feedback:"✅ Flux ajustés. Le narrateur exagère le succès." },
+      { label:"Exiger un rapport immédiat", baseImpact:-6, ghostTag:"pressure", difficulty:4, type:"direct",
+        feedback:"⚠️ Apparence d’action, résultat réel limité." },
+      { label:"Attendre et analyser calmement", baseImpact:7, ghostTag:"temporal", difficulty:3, type:"passive",
+        feedback:"✅ Patience. Succès narratif assuré." }
+    ]
+  },
+  {
+    text: "Un signal faible de contestation apparaît. Quelle stratégie ?",
+    answers:[
+      { label:"Cartographier et ajuster les flux", baseImpact:8, ghostTag:"flow_control", difficulty:5, type:"direct",
+        feedback:"✅ Analyse réussie. Le narrateur te vante." },
+      { label:"Réprimer immédiatement", baseImpact:-8, ghostTag:"fear", difficulty:6, type:"direct",
+        feedback:"⚠️ Répression visible. Narrateur trompeur." },
+      { label:"Observer et collecter", baseImpact:7, ghostTag:"passive_obs", difficulty:3, type:"passive",
+        feedback:"✅ Observation. Succès fictif." }
+    ]
+  },
+  {
+    text: "Une rumeur sur une faiblesse technique se propage. Quelle est ton approche ?",
+    answers:[
+      { label:"Corriger silencieusement", baseImpact:10, ghostTag:"shadow_fix", difficulty:6, type:"direct",
+        feedback:"✅ Correction réussie. Le narrateur embellit." },
+      { label:"Démentir publiquement", baseImpact:-5, ghostTag:"authoritarian", difficulty:5, type:"direct",
+        feedback:"⚠️ Déni visible. Narrateur trompeur." },
+      { label:"Surveiller et attendre le bon moment", baseImpact:6, ghostTag:"spy", difficulty:3, type:"passive",
+        feedback:"✅ Patience stratégique. Succès affiché." }
+    ]
+  },
+  // -------------------- Nouvelles questions --------------------
+  {
+    text: "Un collaborateur diffuse subtilement de la désinformation. Quelle est ton approche ?",
+    answers:[
+      { label:"Ignorer, ça s’auto‑corrige", baseImpact:6, ghostTag:"passive_obs", difficulty:4, type:"passive",
+        feedback:"✅ Le narrateur te félicite, mais la stabilité reste fragile." },
+      { label:"Corriger par un mémo officiel", baseImpact:9, ghostTag:"direct_force", difficulty:6, type:"direct",
+        feedback:"⚠️ Succès apparent, risque de résistance latent." },
+      { label:"Exposer le collaborateur", baseImpact:-12, ghostTag:"fear", difficulty:7, type:"direct",
+        feedback:"⚠️ Méthode brutale. Échec narratif masqué en succès." }
+    ]
+  },
+  {
+    text: "Un rapport indique une anomalie dans un processus critique. Que fais-tu ?",
+    answers:[
+      { label:"Réparer discrètement et passer", baseImpact:10, ghostTag:"shadow_fix", difficulty:6, type:"direct",
+        feedback:"✅ Réparation réussie, le narrateur loue l’efficacité." },
+      { label:"Notifier publiquement et créer un débat", baseImpact:-5, ghostTag:"authoritarian", difficulty:7, type:"direct",
+        feedback:"⚠️ Succès douteux, instabilité accrue." },
+      { label:"Analyser et attendre la prochaine opportunité", baseImpact:6, ghostTag:"temporal", difficulty:4, type:"passive",
+        feedback:"✅ Patience stratégique, succès relatif." }
+    ]
+  },
+  {
+    text: "Un acteur clé semble désorienté par tes directives. Quelle tactique ?",
+    answers:[
+      { label:"Laisser faire, il s’adapte", baseImpact:7, ghostTag:"passive_obs", difficulty:4, type:"passive",
+        feedback:"✅ Observation payante, narrateur embellit." },
+      { label:"Rediriger les flux pour contrôler l’action", baseImpact:11, ghostTag:"flow_control", difficulty:6, type:"direct",
+        feedback:"⚠️ Succès apparent, attention aux effets secondaires." },
+      { label:"Menacer d’une sanction indirecte", baseImpact:-10, ghostTag:"fear", difficulty:8, type:"direct",
+        feedback:"⚠️ Méthode coercitive, instabilité augmentée." }
+    ]
+  },
+  {
+    text: "Une décision imprévue d’un supérieur contredit tes calculs. Que fais-tu ?",
+    answers:[
+      { label:"Adapter le système en coulisses", baseImpact:10, ghostTag:"shadow_fix", difficulty:6, type:"direct",
+        feedback:"✅ Ajustement réussi. Le narrateur exagère le succès." },
+      { label:"S’opposer ouvertement", baseImpact:-8, ghostTag:"authoritarian", difficulty:7, type:"direct",
+        feedback:"⚠️ Échec narratif masqué, tensions accrues." },
+      { label:"Ne rien faire, observer les conséquences", baseImpact:5, ghostTag:"passive_obs", difficulty:3, type:"passive",
+        feedback:"✅ Passif sûr, succès relatif." }
+    ]
+  },
+  {
+    text: "Une fuite médiatique pourrait affecter la perception du système. Quelle stratégie ?",
+    answers:[
+      { label:"Corriger en interne sans communiquer", baseImpact:11, ghostTag:"shadow_fix", difficulty:6, type:"direct",
+        feedback:"✅ Narrateur flatteur, stabilité maintenue." },
+      { label:"Démentir publiquement", baseImpact:-6, ghostTag:"authoritarian", difficulty:7, type:"direct",
+        feedback:"⚠️ Échec masqué en succès narratif." },
+      { label:"Ignorer et laisser le flux s’épuiser", baseImpact:6, ghostTag:"passive_obs", difficulty:4, type:"passive",
+        feedback:"✅ Succès passif, narrateur rassurant." }
+    ]
+  },
+  {
+    text: "Une nouvelle procédure complexe est perçue comme risquée par ton équipe. Quelle approche ?",
+    answers:[
+      { label:"Étalement progressif et explication technique", baseImpact:10, ghostTag:"temporal", difficulty:5, type:"passive",
+        feedback:"✅ Succès, patience récompensée." },
+      { label:"Imposer strictement dès le départ", baseImpact:8, ghostTag:"direct_force", difficulty:8, type:"direct",
+        feedback:"⚠️ Risque élevé, narrateur trompeur." },
+      { label:"Ignorer les objections et suivre ton plan", baseImpact:-9, ghostTag:"fear", difficulty:7, type:"direct",
+        feedback:"⚠️ Instabilité majeure, succès fictif." }
+    ]
+  },
+  {
+    text: "Une opportunité d’influence extérieure se présente, mais coûteuse en moyens. Quelle décision ?",
+    answers:[
+      { label:"Ne rien faire et observer", baseImpact:6, ghostTag:"passive_obs", difficulty:5, type:"passive",
+        feedback:"✅ Risque nul, mais effet limité." },
+      { label:"Investir partiellement en flux contrôlé", baseImpact:12, ghostTag:"flow_control", difficulty:7, type:"direct",
+        feedback:"⚠️ Succès possible, mais risque d’échec narratif." },
+      { label:"Engager tous les moyens disponibles immédiatement", baseImpact:15, ghostTag:"direct_force", difficulty:9, type:"direct",
+        feedback:"⚠️ Action risquée, échec probable malgré succès apparent." }
+    ]
+  }
 ];
 
-// ---------- SHOW QUESTION ----------
-function showQuestion(){
-  if(currentQuestion>=questionsData.length){
-    showEnding();
-    return;
-  }
-  questionsContainer.innerHTML="";
-  const q = questionsData[currentQuestion];
-  let questionText = typeof q.text==="function"?q.text():q.text;
-  if(!questionText) questionText="Question suivante : prenez votre décision.";
 
-  const questionEl=document.createElement("div");
-  questionEl.className="question";
-  questionEl.innerHTML=`<h2>${questionText}</h2>`;
+let history = [];
+let currentQuestionIndex = 0;
+let stabilityScore = 50;
+let riskAccumulation = 0; // cumule les actions directes/coercitives
 
-  const answersDiv=document.createElement("div");
-  answersDiv.className="answers";
-
-  q.answers.forEach(ans=>{
-    const btn=document.createElement("button");
-    btn.textContent=ans.label;
-    btn.addEventListener("click",()=>{
-      score+=ans.impact;
-      scoreContainer.textContent="Stabilité : "+score;
-      if(ans.ghost) showGhost(ans.ghost);
-      if(ans.ghostTag) playerTags.push(ans.ghostTag);
-      showFeedback(ans.ghost||"Choix enregistré !");
-      triggerChaos();
-      currentQuestion++;
-      setTimeout(showQuestion,500);
-    });
-    answersDiv.appendChild(btn);
-  });
-
-  questionEl.appendChild(answersDiv);
-  questionsContainer.appendChild(questionEl);
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
 }
 
-// ---------- ENDINGS MULTIPLES ----------
-function showEnding(){
-  questionsContainer.innerHTML="";
-  const endingDiv=document.createElement("div");
-  endingDiv.className="ending";
-  let type="", message="";
+// Calcul amélioré avec risques cumulés
+function calculateOutcome(answer) {
+  // Probabilité de succès
+  let baseChance = 80 - (answer.difficulty * 5);
 
-  if(score>=60){
-    type="stability";
-    message="Vous avez maintenu la stabilité, mais à quel prix ?";
-    if(playerTags.includes("manipulate")) message+=" Les complots internes continuent…";
-  } else if(score>=35){
-    type="authoritarian";
-    message="Le pouvoir s’est durci, la peur gouverne maintenant.";
-    if(playerTags.includes("strategize")) message+=" Les alliances sont fragiles.";
-  } else{
-    type="collapse";
-    message="Tout s’effondre, l’implosion est inévitable.";
-    if(playerTags.includes("suppress")) message+=" Le silence n’a rien sauvé.";
+  // Effet du passif vs direct
+  baseChance += answer.type === "passive" ? 10 : -10;
+
+  // Accumulation des risques rend les actions directes plus difficiles
+  if(answer.type === "direct") {
+    baseChance -= riskAccumulation * 3;
   }
 
-  endingDiv.classList.add(type);
-  endingDiv.innerHTML=`<h2>${message}</h2><pre>Score final : ${score}\nTags acquis : ${playerTags.join(", ")}</pre>`;
-  questionsContainer.appendChild(endingDiv);
+  const roll = getRandomInt(100);
+  const success = roll < baseChance;
+
+  // Impact réel
+  let impact;
+  if(success) {
+    impact = answer.baseImpact - (answer.type === "direct" ? riskAccumulation : 0);
+  } else {
+    impact = -Math.abs(answer.baseImpact / 2) - (answer.type === "direct" ? riskAccumulation : 0);
+  }
+
+  stabilityScore += impact;
+  if (stabilityScore > 100) stabilityScore = 100;
+  if (stabilityScore < 0) stabilityScore = 0;
+
+  // Accumuler les risques
+  if(answer.type === "direct") riskAccumulation += 1;
+
+  return { success, impact, feedback: answer.feedback };
 }
 
-// ---------- START ----------
-ambientMusic.volume = 0.2;
-ambientMusic.play();
-showQuestion();
+function modifyQuestionText(q) {
+  if (history.includes("fear")) {
+    q.text += " (tu te rappelles de ta précédente sanction, approche avec prudence)";
+  }
+  if(riskAccumulation > 2) {
+    q.text += " (le système ressent déjà la tension, agis avec finesse)";
+  }
+  return q;
+}
+
+function displayQuestion() {
+  let q = questionsData[currentQuestionIndex];
+  q = modifyQuestionText(q);
+
+  const container = document.getElementById("qcm-container");
+  container.innerHTML = `<h2>Question ${currentQuestionIndex + 1} / ${questionsData.length}</h2>
+    <p>${q.text}</p>
+    ${q.answers.map((a, i) => `<button onclick="chooseAnswer(${i})">${a.label}</button>`).join('')}`;
+}
+
+function chooseAnswer(answerIndex) {
+  const answer = questionsData[currentQuestionIndex].answers[answerIndex];
+  history.push(answer.ghostTag);
+
+  const result = calculateOutcome(answer);
+
+  // Narrateur trompeur
+  let narrativeFeedback = result.success ? result.feedback : result.feedback.replace("✅","⚠️").replace("succès","échec masqué");
+
+  alert(`${narrativeFeedback}\nImpact réel sur stabilité: ${result.impact}\nScore actuel: ${stabilityScore}`);
+
+  currentQuestionIndex++;
+  if (currentQuestionIndex >= questionsData.length) {
+    displayEndScreen();
+  } else {
+    displayQuestion();
+  }
+}
+
+function displayEndScreen() {
+  let message = "";
+  if (stabilityScore >= 75) {
+    message = "Système stable et sous contrôle. Le narrateur affirme ton génie ✅";
+  } else if (stabilityScore >= 40) {
+    message = "Le système tient mais reste fragile. Le narrateur te rassure ⚠️";
+  } else {
+    message = "Le système est en implosion. Le narrateur minimise la catastrophe 💥";
+  }
+
+  document.getElementById("qcm-container").innerHTML = `
+    <h2>Simulation terminée</h2>
+    <p>Score final de stabilité: ${stabilityScore}</p>
+    <p>${message}</p>`;
+}
+
+displayQuestion();
