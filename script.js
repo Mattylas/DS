@@ -323,13 +323,37 @@ const QUESTIONS = [
     { id: "correct", label: "Corriger immédiatement", type: "controle", stability: +2, ghost: "correction_reflexe", feedback: "Rapide. Efficace. Peut-être trop." }
   ]
 },
+{
+  id: "Q03",
+  text: "Un acteur secondaire devient central sans autorisation.",
+  choices: [
+    { id: "formalize", label: "Formaliser son rôle", type: "integration", stability: +2, ghost: "institutionnalisation", feedback: "Le système absorbe l’anomalie. Elle devient norme." },
+    { id: "sideline", label: "Le marginaliser discrètement", type: "controle", stability: +3, ghost: "neutralisation", feedback: "Il disparaît sans conflit. D’autres ont remarqué." },
+    { id: "expose", label: "L’exposer publiquement", type: "communication", stability: -3, ghost: "humiliation", feedback: "Le message passe. Le ressentiment aussi." },
+    { id: "wait", label: "Attendre", type: "passivite", stability: 0, ghost: "glissement", feedback: "La situation évolue sans vous." }
+  ]
+},
+{
+  id: "Q04",
+  text: "Une règle commence à être contournée systématiquement.",
+  choices: [
+    { id: "tighten", label: "Renforcer la règle", type: "controle", stability: +3, ghost: "rigidite", feedback: "La conformité augmente. L’inventivité aussi." },
+    { id: "ignore", label: "Tolérer", type: "passivite", stability: -1, ghost: "erosion", feedback: "La règle survit. Son sens disparaît." },
+    { id: "rewrite", label: "Réécrire le cadre", type: "integration", stability: +1, ghost: "zone_grise", feedback: "Tout est légal. Plus rien n’est clair." },
+    { id: "communicate", label: "Rappeler l’esprit de la règle", type: "communication", stability: 0, ghost: "morale", feedback: "Chacun comprend ce qu’il veut." }
+  ]
+},
+{
+  id: "Q05",
+  text: "Le système devient trop dépendant d’un outil.",
+  choices: [
+    { id: "diversify", label: "Diversifier", type: "integration", stability: -2, ghost: "complexite", feedback: "La résilience augmente. La maîtrise diminue." },
+    { id: "lock", label: "Assumer la dépendance", type: "controle", stability: +4, ghost: "verrouillage", feedback: "Tout fonctionne. Jusqu’au jour où non." },
+    { id: "hide", label: "Masquer la dépendance", type: "communication", stability: +1, ghost: "opacite", feedback: "Le récit tient. La réalité aussi, pour l’instant." },
+    { id: "nothing", label: "Ne rien faire", type: "passivite", stability: 0, ghost: "accoutumance", feedback: "Le confort s’installe." }
+  ]
+}
 
-// …
-// (Les questions 03 à 29 suivent exactement la même structure,
-// alternant passivité, contrôle, symbolique, répression, intégration.
-// Le moteur supporte sans modification jusqu’à 30+ questions.)
-
-/* =========================================================
    III — QUESTION 30 (SEUIL)
    ========================================================= */
 
@@ -406,3 +430,58 @@ window.SystemContent = {
   QUESTIONS,
   ENDINGS
 };
+let currentQuestionIndex = 0;
+
+function renderQuestion() {
+  const container = document.getElementById("questionBox");
+  const feedbackBox = document.getElementById("feedback");
+  container.innerHTML = "";
+  feedbackBox.innerHTML = "";
+
+  // Trouver la prochaine question valide
+  let question = null;
+  while (currentQuestionIndex < SystemContent.QUESTIONS.length) {
+    const q = SystemContent.QUESTIONS[currentQuestionIndex];
+    if (SystemEngine.questionAvailable(q)) {
+      question = q;
+      break;
+    }
+    currentQuestionIndex++;
+  }
+
+  if (!question) {
+    showEnding();
+    return;
+  }
+
+  const qEl = document.createElement("div");
+  qEl.innerText = question.text;
+  container.appendChild(qEl);
+
+  question.choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.innerText = choice.label;
+    btn.onclick = () => {
+      const result = SystemEngine.applyChoice(choice);
+      feedbackBox.innerText = result.feedback;
+      updateStabilityBar(result.displayedStability);
+      currentQuestionIndex++;
+      setTimeout(renderQuestion, 1200);
+    };
+    container.appendChild(btn);
+  });
+}
+
+function updateStabilityBar(value) {
+  document.getElementById("scoreBar").style.width = value + "%";
+}
+
+function showEnding() {
+  const end = SystemEngine.resolveEnding();
+  const ending = SystemContent.ENDINGS[end];
+  document.getElementById("questionBox").innerHTML =
+    "FIN — " + ending.title + "\n\n" + ending.text;
+}
+
+renderQuestion();
+
