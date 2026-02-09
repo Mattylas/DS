@@ -1,25 +1,37 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Politique</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Politique</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="app">
+    <header>
+      <h1>Politique</h1>
+      <div id="score-container">
+        <span>Stabilité : </span>
+        <div id="score-bar"><div id="score-fill"></div></div>
+      </div>
+    </header>
 
-<h1>Politique</h1>
+    <main>
+      <div id="question-container">
+        <p id="question-text">Chargement...</p>
+        <div id="answers-container"></div>
+      </div>
 
-<div id="stability-container">
-  <div id="stability-bar"></div>
-</div>
+      <div id="feedback-container">
+        <p id="feedback-text"></p>
+      </div>
 
-<div id="question-container">
-  <p id="question-text">Chargement...</p>
-  <div id="answers-container"></div>
-</div>
+      <div id="final-container" style="display:none;">
+        <p id="final-text"></p>
+        <button id="restart-btn">Recommencer</button>
+      </div>
+    </main>
+  </div>
 
-<div id="feedback"></div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
