@@ -119,117 +119,109 @@ const questionsData = [
 ];
 
 
-// Variables globales
-let currentQuestion = 0;
-let stability = 50; // score de départ
-let ghosts = []; // effets invisibles persistants
-const totalQuestions = questionsData.length;
+// ================================
+// VARIABLES PRINCIPALES
+// ================================
+let currentQuestionIndex = 0;
+let stability = 50; // Score initial de stabilité (0-100)
+let ghosts = 0; // Perturbations invisibles accumulées
 
-// Fonction pour calculer la réussite
-function calculateOutcome(answer) {
-    // base de réussite
-    let chance = 100 - answer.difficulty * 10; // difficulté 1-10
-    if(answer.type === "direct") chance -= 10;  // actions directes plus risquées
-    if(answer.type === "passive") chance += 10;  // actions passives plus sûres
-    if(answer.type === "ressource") chance += 0; // neutre
+const questionContainer = document.getElementById("question-container");
+const questionText = document.getElementById("question-text");
+const answersContainer = document.getElementById("answers-container");
+const stabilityBar = document.getElementById("stability-bar");
+const feedbackBox = document.getElementById("feedback");
 
-    // ajout de hasard
-    let roll = Math.random() * 100;
+// ================================
+// FONCTIONS UTILES
+// ================================
 
-    if(roll <= chance) return "success";
-    else if(roll <= chance + 10) return "partial";
-    else return "fail";
+// Calcul aléatoire d'impact selon difficulté et type
+function calculateImpact(answer) {
+  const typeModifier = answer.type === "direct" ? 1 : answer.type === "passive" ? 0.7 : 0.8;
+  const randomFactor = Math.random() * 0.4 + 0.8; // entre 0.8 et 1.2
+  let impact = answer.baseImpact * typeModifier * randomFactor;
+
+  // Échec possible si action directe et difficulté élevée
+  if (answer.type === "direct" && Math.random() * 10 < answer.difficulty) {
+    impact = impact / 2; // demi impact si échec partiel
+    ghosts += 1; // crée un ghost si échec direct
+  }
+
+  return Math.round(impact);
 }
 
-// Fonction pour appliquer l’impact et gérer les ghosts
-function applyImpact(answer, outcome) {
-    let impact = answer.baseImpact;
+// Affiche la question et les réponses
+function showQuestion() {
+  const q = questionsData[currentQuestionIndex];
+  questionText.textContent = q.text;
+  answersContainer.innerHTML = "";
+  feedbackBox.textContent = "";
 
-    // modificateurs selon l'issue
-    switch(outcome) {
-        case "success":
-            stability += impact;
-            ghosts.push({ type: answer.type, effect: "positive", strength: impact/2 });
-            break;
-        case "partial":
-            stability += impact/2;
-            ghosts.push({ type: answer.type, effect: "neutral", strength: impact/4 });
-            break;
-        case "fail":
-            stability -= Math.abs(impact);
-            ghosts.push({ type: answer.type, effect: "negative", strength: Math.abs(impact)/2 });
-            break;
-    }
-
-    // bornes
-    if(stability > 100) stability = 100;
-    if(stability < 0) stability = 0;
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = ans.label;
+    btn.classList.add("answer-btn");
+    btn.addEventListener("click", () => selectAnswer(i));
+    answersContainer.appendChild(btn);
+  });
 }
 
-// Fonction pour générer le feedback final
-function generateFeedback(answer, outcome) {
-    let ghostText = ghosts.length > 0 ? `Ghosts persistants : ${ghosts.length}` : "";
-    let outcomeText = "";
+// Gère le choix de l'utilisateur
+function selectAnswer(answerIndex) {
+  const q = questionsData[currentQuestionIndex];
+  const ans = q.answers[answerIndex];
+  const impact = calculateImpact(ans);
+  stability += impact;
+  stability = Math.max(0, Math.min(100, stability)); // Clamp 0-100
 
-    switch(outcome) {
-        case "success":
-            outcomeText = "✅ Succès : " + answer.feedback;
-            break;
-        case "partial":
-            outcomeText = "⚠️ Succès partiel : " + answer.feedback;
-            break;
-        case "fail":
-            outcomeText = "❌ Échec : " + answer.feedback;
-            break;
-    }
+  // Feedback tranchant
+  feedbackBox.innerHTML = `
+    <p>${ans.feedback}</p>
+    <p>Impact sur la stabilité : <strong>${impact > 0 ? "+" : ""}${impact}</strong></p>
+    <p>Ghosts actuels : ${ghosts}</p>
+  `;
 
-    return `${outcomeText}\n${ghostText}\nScore de stabilité actuel : ${stability}`;
-}
+  // Mise à jour barre stabilité
+  stabilityBar.style.width = stability + "%";
 
-// Fonction pour traiter une réponse
-function answerQuestion(answerIndex) {
-    const question = questionsData[currentQuestion];
-    const answer = question.answers[answerIndex];
-
-    const outcome = calculateOutcome(answer);
-    applyImpact(answer, outcome);
-    const feedbackText = generateFeedback(answer, outcome);
-
-    // afficher le feedback
-    document.getElementById("feedback").innerText = feedbackText;
-
-    // passer à la question suivante après délai
-    currentQuestion++;
-    if(currentQuestion < totalQuestions) {
-        setTimeout(() => renderQuestion(currentQuestion), 2000);
+  // Mini délai avant la prochaine question
+  setTimeout(() => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questionsData.length) {
+      showQuestion();
     } else {
-        setTimeout(() => showFinalScreen(), 2000);
+      showFinalScreen();
     }
+  }, 2000);
 }
 
-// Fonction pour afficher une question
-function renderQuestion(index) {
-    const question = questionsData[index];
-    document.getElementById("question-text").innerText = question.text;
-    const answersContainer = document.getElementById("answers");
-    answersContainer.innerHTML = "";
-    question.answers.forEach((a, i) => {
-        const btn = document.createElement("button");
-        btn.innerText = a.label;
-        btn.onclick = () => answerQuestion(i);
-        answersContainer.appendChild(btn);
-    });
-}
-
-// Écran final selon stabilité
+// Écran final selon score et ghosts
 function showFinalScreen() {
-    let endText = "";
-    if(stability > 70) endText = "Stabilité maximale : Votre système est solide et invisible.";
-    else if(stability > 40) endText = "Stabilité moyenne : Le système tient mais attention aux ghost persistants.";
-    else endText = "Implosion : Le système s’effondre, les ghosts prennent le contrôle.";
+  questionContainer.innerHTML = "";
+  answersContainer.innerHTML = "";
+  feedbackBox.innerHTML = "";
 
-    document.getElementById("main").innerHTML = `<h1>${endText}</h1><p>Ghosts actifs : ${ghosts.length}</p>`;
+  let title = "Simulation terminée";
+  let message = "";
+  
+  if (stability >= 70 && ghosts === 0) {
+    message = "Stabilité maximale : votre système est parfaitement invisible et robuste.";
+  } else if (stability >= 50 && ghosts <= 2) {
+    message = "Stabilité acceptable : vous contrôlez le système mais des anomalies persistent.";
+  } else if (stability < 50 || ghosts > 2) {
+    message = "Instabilité critique : le système est en danger. Les ghosts se multiplient.";
+  }
+
+  questionContainer.innerHTML = `
+    <h2>${title}</h2>
+    <p>${message}</p>
+    <p>Score final de stabilité : ${stability}</p>
+    <p>Ghosts finaux : ${ghosts}</p>
+  `;
 }
 
-// Initialisation
-renderQuestion(currentQuestion);
+// ================================
+// INITIALISATION
+// ================================
+showQuestion();
