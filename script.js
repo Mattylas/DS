@@ -1,8 +1,3 @@
-/* =========================================================
-   SYSTÈME DE JEU — STABILITÉ & QUESTIONS
-   Compact et optimisé
-   ========================================================= */
-
 /* --------------------
    ÉTAT GLOBAL
 -------------------- */
@@ -21,12 +16,12 @@ const hiddenConfig = {
   stabilityFloor: 0,
   stabilityCeil: 100,
   actionTypes: {
-    passivite: { risk: "cumulatif", baseChance: 0.55 },
-    communication: { risk: "confiance", baseChance: 0.5 },
-    controle: { risk: "effondrement", baseChance: 0.7 },
-    integration: { risk: "ambiguite", baseChance: 0.4 },
-    repression: { risk: "radicalisation", baseChance: 0.75 },
-    symbolique: { risk: "imprevisible", baseChance: 0.5 }
+    passivite: { baseChance: 0.55 },
+    communication: { baseChance: 0.5 },
+    controle: { baseChance: 0.7 },
+    integration: { baseChance: 0.4 },
+    repression: { baseChance: 0.75 },
+    symbolique: { baseChance: 0.5 }
   }
 };
 
@@ -54,10 +49,10 @@ function resolveAction(action) {
 }
 
 /* --------------------
-   STABILITÉ (MENSONGÈRE)
+   STABILITÉ
 -------------------- */
 function applyStabilityImpact(action, success) {
-  let delta = action.stability;
+  let delta = action.stability || 0;
   if (!success) delta *= -0.5;
   systemState.stability = clamp(systemState.stability + delta, hiddenConfig.stabilityFloor, hiddenConfig.stabilityCeil);
 }
@@ -77,15 +72,18 @@ function applyChoice(choice) {
 /* --------------------
    CONDITIONS QUESTIONS
 -------------------- */
-function questionAvailable(q) { return !q.condition || q.condition(systemState.ghosts); }
+function questionAvailable(q) {
+  return !q.condition || q.condition(systemState.ghosts);
+}
 
 /* --------------------
    QUESTION SUIVANTE
 -------------------- */
 function getNextQuestion() {
-  for (let i = systemState.history.length; i < QUESTIONS.length; i++) {
-    const q = QUESTIONS[i];
-    if (questionAvailable(q) && !systemState.history.find(h => h.id === q.id)) return q;
+  for (let q of QUESTIONS) {
+    if (questionAvailable(q) && !systemState.history.find(h => h.choice && q.choices.some(c => c.id === h.choice))) {
+      return q;
+    }
   }
   return null;
 }
@@ -96,6 +94,7 @@ function getNextQuestion() {
 function renderQuestion() {
   const q = getNextQuestion();
   const container = document.getElementById("game");
+  if (!container) return;
   if (!q) {
     container.innerHTML = `<h2 style="color:#0F0">Fin du cycle</h2>
       <p style="color:#0F0">Stabilité finale : ${systemState.stability}</p>`;
@@ -103,14 +102,14 @@ function renderQuestion() {
   }
   container.innerHTML = `
     <h2 style="color:#0F0; white-space:pre-line">${q.text}</h2>
-    ${q.choices.map((c,idx)=>`<button onclick="handleChoice('${q.id}',${idx})" 
-    style="margin:3px;background:#000;color:#0F0;border:1px solid #0F0;padding:5px;cursor:pointer">${c.label}</button>`).join('')}
+    ${q.choices.map(c => `<button onclick="handleChoice('${c.id}')"
+      style="margin:3px;background:#000;color:#0F0;border:1px solid #0F0;padding:5px;cursor:pointer">${c.label}</button>`).join('')}
   `;
 }
 
-function handleChoice(questionId, choiceIndex) {
-  const question = QUESTIONS.find(q=>q.id===questionId);
-  const choice = question.choices[choiceIndex];
+function handleChoice(choiceId) {
+  const question = QUESTIONS.find(q => q.choices.some(c => c.id === choiceId));
+  const choice = question.choices.find(c => c.id === choiceId);
   const result = applyChoice(choice);
   alert(result.feedback);
   renderQuestion();
@@ -125,11 +124,6 @@ function resolveEnding() {
   if (s >= 40 && g > 6) return "B";
   return "C";
 }
-
-/* --------------------
-   EXPORT
--------------------- */
-window.SystemEngine = { state: systemState, applyChoice, questionAvailable, resolveEnding, renderQuestion };
 const QUESTIONS = [
 
 /* ==============================
@@ -461,5 +455,11 @@ const QUESTIONS = [
     { id: "adapt", label: "S’adapter", type: "integration", stability: -1, ghost: "flexibilite", feedback: "La structure change sans perdre tout." },
     { id: "wait", label: "Ne rien faire", type: "passivite", stability: -3, ghost: "inertie_critique", feedback: "Le système oscille dangereusement." }
   ]
+];
+/* --------------------
+   EXPORT & INIT
+-------------------- */
+window.SystemEngine = { state: systemState, applyChoice, questionAvailable, resolveEnding, renderQuestion };
+window.onload = () => renderQuestion();
 }
 
