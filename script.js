@@ -1,56 +1,71 @@
 // ===============================
-// FILM POLITIQUE INTERACTIF — SCRIPT.JS ENRICHIE
-// 24 QUESTIONS + NARRATION DYNAMIQUE + CHAOS
+// FILM POLITIQUE INTERACTIF — SCRIPT.JS ULTRA-IMMERSIF
+// 24 QUESTIONS + NARRATEUR + CHAOS + GHOSTS
 // ===============================
 
 let currentQuestion = 0;
 let score = 50;
 let playerTags = [];
 
+// ---------- DOM ----------
+const app = document.getElementById("app");
+const questionsContainer = document.getElementById("questions");
+const feedbackContainer = document.getElementById("feedback");
+const scoreContainer = document.getElementById("score");
+const ambientMusic = document.getElementById("ambient");
+const lightningSound = document.getElementById("lightningSound");
+
 // ---------- NARRATEUR DYNAMIQUE ----------
 function narrateur() {
   if(playerTags.includes("manipulate")) return "Tu crois contrôler tout… mais le contrôle te contrôle.";
-  if(playerTags.includes("suppress")) return "Le silence est la clé, disent-ils… mais à quel prix ?";
-  if(playerTags.includes("strategize")) return "Chaque choix te rapproche du sommet… ou du chaos.";
-  return "Le monde t’observe et rien ne bouge encore… pour l’instant.";
+  if(playerTags.includes("suppress")) return "Le silence est la clé… mais à quel prix ?";
+  if(playerTags.includes("divert")) return "Le chaos devient ton meilleur allié.";
+  if(playerTags.includes("authoritarian")) return "La peur gouverne, mais pour combien de temps ?";
+  return "Le monde t’observe, et rien ne bouge… encore.";
 }
 
 // ---------- MINI-CHAOS VISUEL ----------
 function triggerChaos() {
-  // Fréquence et intensité selon score
-  const flashes = score > 60 ? 1 : score > 35 ? 2 : 4;
-  const intensity = score > 60 ? 2 : score > 35 ? 4 : 7;
+  const flashes = score>60?1:score>35?2:4;
+  lightningSound.currentTime = 0;
+  lightningSound.play();
 
   for(let i=0;i<flashes;i++){
     const lightning = document.createElement("div");
-    lightning.className = "lightning";
-    lightning.style.left = Math.random()*90 + "vw";
-    lightning.style.height = (100 + Math.random()*200) + "px";
+    lightning.className="lightning";
+    lightning.style.left=Math.random()*90+"vw";
+    lightning.style.height=(100+Math.random()*200)+"px";
     document.body.appendChild(lightning);
-    setTimeout(()=>lightning.remove(), 200);
+    setTimeout(()=>lightning.remove(),200);
   }
 
-  // Secousse écran
-  document.body.style.animation = `shake 0.2s ease-in-out`;
-  setTimeout(()=>document.body.style.animation="", 200);
+  document.body.style.animation="shake 0.2s ease-in-out";
+  setTimeout(()=>document.body.style.animation="",200);
 }
 
-// ---------- GHOSTS ----------
-function showGhost(text) {
-  const ghostEl = document.createElement("div");
-  ghostEl.className = "ghost";
-  ghostEl.style.left = Math.random()*80 + "%";
-  ghostEl.style.top = Math.random()*60 + "%";
-  ghostEl.textContent = text;
+// ---------- GHOSTS INTERACTIFS ----------
+function showGhost(text){
+  const ghostEl=document.createElement("div");
+  ghostEl.className="ghost";
+  ghostEl.style.left=Math.random()*80+"%";
+  ghostEl.style.top=Math.random()*60+"%";
+  ghostEl.textContent=text;
   document.body.appendChild(ghostEl);
+
+  // Ghost suit le curseur légèrement
+  document.addEventListener("mousemove", e=>{
+    ghostEl.style.left = (e.clientX + Math.random()*50 - 25) + "px";
+    ghostEl.style.top = (e.clientY + Math.random()*50 - 25) + "px";
+  }, {once:true});
+
   setTimeout(()=>ghostEl.remove(),3000);
 }
 
 // ---------- FEEDBACK ----------
 function showFeedback(text){
-  const msg = narrateur() + " — " + (text || "Choix enregistré !");
-  feedbackContainer.textContent = msg;
-  feedbackContainer.style.opacity = "1";
+  const msg = narrateur()+" — "+(text||"Choix enregistré !");
+  feedbackContainer.textContent=msg;
+  feedbackContainer.style.opacity="1";
   setTimeout(()=>feedbackContainer.style.opacity="0",1200);
 }
 
@@ -182,41 +197,34 @@ const questionsData = [
   ]}
 ];
 
-// ---------- INITIALISATION DOM ----------
-const app = document.getElementById("app");
-const questionsContainer = document.getElementById("questions");
-const feedbackContainer = document.getElementById("feedback");
-const scoreContainer = document.getElementById("score");
-
-// ---------- AFFICHAGE QUESTIONS ----------
-function showQuestion() {
-  if(currentQuestion >= questionsData.length){
+// ---------- SHOW QUESTION ----------
+function showQuestion(){
+  if(currentQuestion>=questionsData.length){
     showEnding();
     return;
   }
-  questionsContainer.innerHTML = "";
+  questionsContainer.innerHTML="";
   const q = questionsData[currentQuestion];
+  let questionText = typeof q.text==="function"?q.text():q.text;
+  if(!questionText) questionText="Question suivante : prenez votre décision.";
 
-  // Texte dynamique
-  let questionText = typeof q.text === "function" ? q.text() : q.text;
-  if(!questionText) questionText = "Question suivante : prenez votre décision.";
+  const questionEl=document.createElement("div");
+  questionEl.className="question";
+  questionEl.innerHTML=`<h2>${questionText}</h2>`;
 
-  const questionEl = document.createElement("div");
-  questionEl.className = "question";
-  questionEl.innerHTML = `<h2>${questionText}</h2>`;
-  const answersDiv = document.createElement("div");
-  answersDiv.className = "answers";
+  const answersDiv=document.createElement("div");
+  answersDiv.className="answers";
 
   q.answers.forEach(ans=>{
-    const btn = document.createElement("button");
-    btn.textContent = ans.label;
+    const btn=document.createElement("button");
+    btn.textContent=ans.label;
     btn.addEventListener("click",()=>{
-      score += ans.impact;
-      scoreContainer.textContent = "Stabilité : "+score;
+      score+=ans.impact;
+      scoreContainer.textContent="Stabilité : "+score;
       if(ans.ghost) showGhost(ans.ghost);
       if(ans.ghostTag) playerTags.push(ans.ghostTag);
-      showFeedback(ans.ghost || "Choix enregistré !");
-      triggerChaos(); // Mini-chaos
+      showFeedback(ans.ghost||"Choix enregistré !");
+      triggerChaos();
       currentQuestion++;
       setTimeout(showQuestion,500);
     });
@@ -227,10 +235,10 @@ function showQuestion() {
   questionsContainer.appendChild(questionEl);
 }
 
-// ---------- FIN MULTIPLE ----------
+// ---------- ENDINGS MULTIPLES ----------
 function showEnding(){
-  questionsContainer.innerHTML = "";
-  const endingDiv = document.createElement("div");
+  questionsContainer.innerHTML="";
+  const endingDiv=document.createElement("div");
   endingDiv.className="ending";
   let type="", message="";
 
@@ -249,9 +257,11 @@ function showEnding(){
   }
 
   endingDiv.classList.add(type);
-  endingDiv.innerHTML = `<h2>${message}</h2><pre>Score final : ${score}\nTags acquis : ${playerTags.join(", ")}</pre>`;
+  endingDiv.innerHTML=`<h2>${message}</h2><pre>Score final : ${score}\nTags acquis : ${playerTags.join(", ")}</pre>`;
   questionsContainer.appendChild(endingDiv);
 }
 
-// ---------- LANCEMENT ----------
+// ---------- START ----------
+ambientMusic.volume = 0.2;
+ambientMusic.play();
 showQuestion();
