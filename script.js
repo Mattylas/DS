@@ -1,21 +1,26 @@
+// ===============================
+// FILM POLITIQUE INTERACTIF — SCRIPT.JS CORRIGÉ
+// 24 QUESTIONS + LOGIQUE COMPLÈTE
+// ===============================
+
 let currentQuestion = 0;
 let score = 50;
 let playerTags = [];
 
 const questionsData = [
-  // --- 6 originales ---
   {text:"Une information sensible circule hors de ton contrôle.",answers:[
     {label:"Étouffer la source",impact:8,ghost:"La transparence était un luxe.",ghostTag:"suppress"},
     {label:"Créer une info concurrente",impact:4,ghost:"Le faux stabilise.",ghostTag:"divert"},
     {label:"Laisser fuiter une version contrôlée",impact:2,ghost:"La vérité devient modulable.",ghostTag:"partial"}
   ]},
-  {text:function(){if(playerTags.includes("suppress")) return "Le système se méfie de tes silences : comment vas-tu répondre ?";
-                      else if(playerTags.includes("divert")) return "La diversion a fonctionné… mais pour combien de temps ?";
-                      else return "Une nouvelle menace apparaît dans ton administration.";},
-   answers:[
+  {text:function(){ 
+    if(playerTags.includes("suppress")) return "Le système se méfie de tes silences : comment vas-tu répondre ?";
+    if(playerTags.includes("divert")) return "La diversion a fonctionné… mais pour combien de temps ?";
+    return "Une nouvelle menace apparaît dans ton administration.";
+  }, answers:[
     {label:"Répondre immédiatement",impact:6,ghost:"La rapidité sauve temporairement."},
     {label:"Reporter la décision",impact:-6,ghost:"L’indécision attire l’interprétation."}
-   ]},
+  ]},
   {text:"Un scandale éclate à l’étranger.",answers:[
     {label:"Exploiter la diversion",impact:12,ghost:"Le cynisme paie.",ghostTag:"exploit"},
     {label:"T’indigner publiquement",impact:4,ghost:"L’indignation est performative."},
@@ -36,7 +41,8 @@ const questionsData = [
     {label:"Parce que personne d’autre ne peut",impact:8,ghost:"Le système se ferme."},
     {label:"Tu ne sais plus",impact:-20,ghost:"Le système, lui, sait."}
   ]},
-  {text: "Une rumeur interne prend de l’ampleur dans les médias.", answers:[
+  // --- toutes les autres questions supplémentaires (total 24) ---
+  {text:"Une rumeur interne prend de l’ampleur dans les médias.", answers:[
     {label: "Contacter la source et négocier", impact:5, ghost:"La négociation calme mais ne ferme jamais."},
     {label: "Ignorer et laisser flotter", impact:-3, ghost:"Le silence nourrit l’incertitude."},
     {label: "Manipuler le récit publiquement", impact:8, ghost:"Le spectacle remplace la vérité.", ghostTag:"manipulate"}
@@ -143,6 +149,7 @@ function showGhost(text) {
   document.body.appendChild(ghostEl);
   setTimeout(()=>ghostEl.remove(),3000);
 }
+
 function showQuestion() {
   if(currentQuestion >= questionsData.length){
     showEnding();
@@ -182,7 +189,6 @@ function showQuestion() {
   questionEl.appendChild(answersDiv);
   questionsContainer.appendChild(questionEl);
 }
-
 
 function showFeedback(text){
   feedbackContainer.textContent = text;
