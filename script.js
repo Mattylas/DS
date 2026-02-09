@@ -144,6 +144,25 @@ function showGhost(text) {
   document.body.appendChild(ghostEl);
   setTimeout(()=>ghostEl.remove(),3000);
 }
+// ===============================
+// MINI-CHAOS À CHAQUE RÉPONSE
+// ===============================
+function triggerChaos() {
+  // Création d'un éclair aléatoire
+  const lightning = document.createElement("div");
+  lightning.className = "lightning";
+  lightning.style.left = Math.random()*90 + "vw";
+  lightning.style.height = (100 + Math.random()*200) + "px";
+  document.body.appendChild(lightning);
+  
+  // Suppression après animation
+  setTimeout(()=>lightning.remove(), 200);
+
+  // Petite secousse écran
+  const intensity = 2 + Math.random()*3; // pixels
+  document.body.style.animation = `shake 0.2s ease-in-out`;
+  setTimeout(()=>document.body.style.animation="", 200);
+}
 
 function showQuestion() {
   if(currentQuestion >= questionsData.length){
@@ -171,14 +190,19 @@ function showQuestion() {
     const btn = document.createElement("button");
     btn.textContent = ans.label;
     btn.addEventListener("click",()=>{
-      score += ans.impact;
-      scoreContainer.textContent = "Stabilité : "+score;
-      if(ans.ghost) showGhost(ans.ghost);
-      if(ans.ghostTag) playerTags.push(ans.ghostTag);
-      showFeedback(ans.ghost || "Choix enregistré !");
-      currentQuestion++;
-      setTimeout(showQuestion,500);
-    });
+  score += ans.impact;
+  scoreContainer.textContent = "Stabilité : "+score;
+  if(ans.ghost) showGhost(ans.ghost);
+  if(ans.ghostTag) playerTags.push(ans.ghostTag);
+  showFeedback(ans.ghost || "Choix enregistré !");
+  
+  // CHAOS VISUEL
+  triggerChaos();
+
+  currentQuestion++;
+  setTimeout(showQuestion,500);
+});
+
     answersDiv.appendChild(btn);
   });
   questionEl.appendChild(answersDiv);
