@@ -2,80 +2,24 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Jeu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      background: #000;
-      color: #0F0;
-      font-family: 'Courier New', monospace;
-      margin: 0;
-      padding: 20px;
-    }
-
-    #game {
-      max-width: 800px;
-      margin: auto;
-    }
-
-    h2 {
-      white-space: pre-line;
-      margin-bottom: 15px;
-    }
-
-    .choices button {
-      margin: 5px 5px 5px 0;
-      padding: 8px 12px;
-      border: 1px solid #0F0;
-      background: #000;
-      color: #0F0;
-      cursor: pointer;
-      font-family: monospace;
-    }
-
-    .choices button:hover {
-      background: #0F5;
-      color: #000;
-    }
-
-    .feedback {
-      margin-top: 15px;
-      padding: 10px;
-      border-top: 1px solid #0F0;
-      font-style: italic;
-    }
-
-    .stability {
-      margin-top: 5px;
-      font-weight: bold;
-    }
-  </style>
 </head>
 <body>
-  <div id="game">
-    <!-- Les questions seront injectées ici par le JS -->
+  <div id="app">
+    <header>
+      <h1>Politique</h1>
+      <div id="score">Stabilité : 50</div>
+    </header>
+    <main id="questions"></main>
+    <div id="feedback"></div>
   </div>
 
-  <script src="gameEngine.js"></script>
-  <script>
-    // Redéfinition de handleChoice pour afficher le feedback dans la page
-    function handleChoice(questionId, choiceIndex) {
-      const question = QUESTIONS.find(q => q.id === questionId);
-      const choice = question.choices[choiceIndex];
-      const result = SystemEngine.applyChoice(choice);
+  <!-- Sons et musique -->
+  <audio id="ambient" src="sounds/ambiance.mp3" loop autoplay></audio>
+  <audio id="lightningSound" src="sounds/eclair.mp3"></audio>
 
-      // Affichage de la question suivante avec feedback
-      const container = document.getElementById("game");
-      const feedbackHTML = `<div class="feedback">Feedback : ${result.feedback}<br>Stabilité : ${result.displayedStability}</div>`;
-      SystemEngine.renderQuestion();
-      
-      // Ajout du feedback sous la question actuelle
-      const newContainer = document.getElementById("game");
-      newContainer.innerHTML += feedbackHTML;
-    }
-
-    // Démarrage automatique du jeu
-    window.onload = () => SystemEngine.renderQuestion();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

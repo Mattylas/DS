@@ -1,18 +1,45 @@
-button {
-  margin: 3px;
-  padding: 5px;
-  border: 1px solid #0F0;
-  background: #000;
-  color: #0F0;
-  cursor: pointer;
+body, html {
+  margin:0; padding:0;
+  font-family:'Segoe UI', sans-serif;
+  background:#000;
+  color:#fff;
+  overflow-y:auto;
+  perspective:1200px;
 }
 
-button:hover {
-  background: #0F5;
-  color: #000;
-}
+#app { max-width:900px; margin:0 auto; padding:20px; transform-style:preserve-3d; }
 
-#game h2 {
-  color: #0F0;
-  white-space: pre-line;
-}
+/* HEADER */
+header { position:sticky; top:0; background:#000; z-index:100; padding:10px 0; border-bottom:2px solid #0f0; display:flex; justify-content:space-between; align-items:center; }
+header h1 { font-size:1.8rem; margin:0; text-shadow:0 0 5px #0f0; }
+#score { font-size:1.2rem; font-weight:bold; color:#0f0; text-shadow:0 0 10px #0f0; }
+
+/* QUESTIONS */
+.question { margin:40px 0; padding:15px; border:1px solid #0f0; border-radius:10px; box-shadow:0 0 20px rgba(0,255,0,0.2); animation:fadeIn 0.5s; transform:rotateX(0deg); transition:transform 0.3s; }
+.question:hover { transform:rotateX(3deg) rotateY(2deg) scale(1.02); }
+.question h2 { font-size:1.5rem; margin-bottom:15px; text-shadow:0 0 5px #0f0; }
+.answers { display:flex; flex-direction:column; gap:10px; }
+.answers button { background:#111; color:#fff; border:1px solid #0f0; padding:10px 15px; font-size:1rem; cursor:pointer; transition:all 0.2s ease, transform 0.3s ease; box-shadow:0 0 10px rgba(0,255,0,0.5); }
+.answers button:hover { background:#0f0; color:#000; transform:scale(1.1) rotateX(3deg); }
+
+/* FEEDBACK */
+#feedback { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(0,255,0,0.15); color:#0f0; padding:8px 16px; border:1px solid #0f0; border-radius:5px; font-weight:bold; opacity:0; transition:opacity 0.3s ease, transform 0.3s; pointer-events:none; z-index:200; }
+
+/* GHOSTS */
+.ghost { position:fixed; font-size:1rem; font-weight:bold; color:#0f0; opacity:0.7; animation:ghostMove 3s ease forwards; pointer-events:none; z-index:150; cursor:default; }
+@keyframes ghostMove { 0% { transform:translateY(0) scale(1) rotate(0deg); opacity:0.7; } 50% { transform:translateY(-30px) scale(1.2) rotate(10deg); opacity:1; } 100% { transform:translateY(-60px) scale(0.8) rotate(-10deg); opacity:0; } }
+
+/* MINI-CHAOS */
+.lightning { position:fixed; width:3px; height:100%; background:#0f0; left:0; top:0; opacity:0.7; pointer-events:none; z-index:300; transform:skewX(20deg); animation:flash 0.2s linear forwards; }
+@keyframes flash { 0%{opacity:1; transform:translateX(0) scaleY(1);} 50%{opacity:0.5; transform:translateX(50px) scaleY(1.2);} 100%{opacity:0; transform:translateX(100px) scaleY(0.8);} }
+
+/* SECousse Écran */
+@keyframes shake { 0%{transform:translate(0,0);} 25%{transform:translate(5px,-5px);} 50%{transform:translate(-5px,5px);} 75%{transform:translate(5px,5px);} 100%{transform:translate(0,0);} }
+
+/* ENDINGS */
+.ending { margin-top:50px; padding:20px; border:2px solid #0f0; text-align:center; font-size:1.4rem; animation:fadeIn 1s ease-in-out; box-shadow:0 0 30px rgba(0,255,0,0.4); }
+.ending.stability { border-color:#0f0; }
+.ending.authoritarian { border-color:#ff0; }
+.ending.collapse { border-color:#f00; }
+
+@keyframes fadeIn{from{opacity:0} to{opacity:1}}
