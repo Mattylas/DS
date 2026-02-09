@@ -1,7 +1,60 @@
+// ===============================
+// FILM POLITIQUE INTERACTIF — SCRIPT.JS ENRICHIE
+// 24 QUESTIONS + NARRATION DYNAMIQUE + CHAOS
+// ===============================
+
 let currentQuestion = 0;
 let score = 50;
 let playerTags = [];
 
+// ---------- NARRATEUR DYNAMIQUE ----------
+function narrateur() {
+  if(playerTags.includes("manipulate")) return "Tu crois contrôler tout… mais le contrôle te contrôle.";
+  if(playerTags.includes("suppress")) return "Le silence est la clé, disent-ils… mais à quel prix ?";
+  if(playerTags.includes("strategize")) return "Chaque choix te rapproche du sommet… ou du chaos.";
+  return "Le monde t’observe et rien ne bouge encore… pour l’instant.";
+}
+
+// ---------- MINI-CHAOS VISUEL ----------
+function triggerChaos() {
+  // Fréquence et intensité selon score
+  const flashes = score > 60 ? 1 : score > 35 ? 2 : 4;
+  const intensity = score > 60 ? 2 : score > 35 ? 4 : 7;
+
+  for(let i=0;i<flashes;i++){
+    const lightning = document.createElement("div");
+    lightning.className = "lightning";
+    lightning.style.left = Math.random()*90 + "vw";
+    lightning.style.height = (100 + Math.random()*200) + "px";
+    document.body.appendChild(lightning);
+    setTimeout(()=>lightning.remove(), 200);
+  }
+
+  // Secousse écran
+  document.body.style.animation = `shake 0.2s ease-in-out`;
+  setTimeout(()=>document.body.style.animation="", 200);
+}
+
+// ---------- GHOSTS ----------
+function showGhost(text) {
+  const ghostEl = document.createElement("div");
+  ghostEl.className = "ghost";
+  ghostEl.style.left = Math.random()*80 + "%";
+  ghostEl.style.top = Math.random()*60 + "%";
+  ghostEl.textContent = text;
+  document.body.appendChild(ghostEl);
+  setTimeout(()=>ghostEl.remove(),3000);
+}
+
+// ---------- FEEDBACK ----------
+function showFeedback(text){
+  const msg = narrateur() + " — " + (text || "Choix enregistré !");
+  feedbackContainer.textContent = msg;
+  feedbackContainer.style.opacity = "1";
+  setTimeout(()=>feedbackContainer.style.opacity="0",1200);
+}
+
+// ---------- QUESTIONS ----------
 const questionsData = [
   {text:"Une information sensible circule hors de ton contrôle.",answers:[
     {label:"Étouffer la source",impact:8,ghost:"La transparence était un luxe.",ghostTag:"suppress"},
@@ -129,41 +182,13 @@ const questionsData = [
   ]}
 ];
 
-// ---------- LOGIQUE DYNAMIQUE ----------
+// ---------- INITIALISATION DOM ----------
 const app = document.getElementById("app");
 const questionsContainer = document.getElementById("questions");
 const feedbackContainer = document.getElementById("feedback");
 const scoreContainer = document.getElementById("score");
 
-function showGhost(text) {
-  const ghostEl = document.createElement("div");
-  ghostEl.className = "ghost";
-  ghostEl.style.left = Math.random()*80 + "%";
-  ghostEl.style.top = Math.random()*60 + "%";
-  ghostEl.textContent = text;
-  document.body.appendChild(ghostEl);
-  setTimeout(()=>ghostEl.remove(),3000);
-}
-// ===============================
-// MINI-CHAOS À CHAQUE RÉPONSE
-// ===============================
-function triggerChaos() {
-  // Création d'un éclair aléatoire
-  const lightning = document.createElement("div");
-  lightning.className = "lightning";
-  lightning.style.left = Math.random()*90 + "vw";
-  lightning.style.height = (100 + Math.random()*200) + "px";
-  document.body.appendChild(lightning);
-  
-  // Suppression après animation
-  setTimeout(()=>lightning.remove(), 200);
-
-  // Petite secousse écran
-  const intensity = 2 + Math.random()*3; // pixels
-  document.body.style.animation = `shake 0.2s ease-in-out`;
-  setTimeout(()=>document.body.style.animation="", 200);
-}
-
+// ---------- AFFICHAGE QUESTIONS ----------
 function showQuestion() {
   if(currentQuestion >= questionsData.length){
     showEnding();
@@ -172,62 +197,61 @@ function showQuestion() {
   questionsContainer.innerHTML = "";
   const q = questionsData[currentQuestion];
 
-  // Assure un texte valide
-  let questionText = "";
-  if(typeof q.text === "function"){
-    questionText = q.text();
-    if(!questionText) questionText = "Question suivante : prenez votre décision.";
-  } else {
-    questionText = q.text;
-  }
+  // Texte dynamique
+  let questionText = typeof q.text === "function" ? q.text() : q.text;
+  if(!questionText) questionText = "Question suivante : prenez votre décision.";
 
   const questionEl = document.createElement("div");
   questionEl.className = "question";
   questionEl.innerHTML = `<h2>${questionText}</h2>`;
   const answersDiv = document.createElement("div");
   answersDiv.className = "answers";
+
   q.answers.forEach(ans=>{
     const btn = document.createElement("button");
     btn.textContent = ans.label;
     btn.addEventListener("click",()=>{
-  score += ans.impact;
-  scoreContainer.textContent = "Stabilité : "+score;
-  if(ans.ghost) showGhost(ans.ghost);
-  if(ans.ghostTag) playerTags.push(ans.ghostTag);
-  showFeedback(ans.ghost || "Choix enregistré !");
-  
-  // CHAOS VISUEL
-  triggerChaos();
-
-  currentQuestion++;
-  setTimeout(showQuestion,500);
-});
-
+      score += ans.impact;
+      scoreContainer.textContent = "Stabilité : "+score;
+      if(ans.ghost) showGhost(ans.ghost);
+      if(ans.ghostTag) playerTags.push(ans.ghostTag);
+      showFeedback(ans.ghost || "Choix enregistré !");
+      triggerChaos(); // Mini-chaos
+      currentQuestion++;
+      setTimeout(showQuestion,500);
+    });
     answersDiv.appendChild(btn);
   });
+
   questionEl.appendChild(answersDiv);
   questionsContainer.appendChild(questionEl);
 }
 
-function showFeedback(text){
-  feedbackContainer.textContent = text;
-  feedbackContainer.style.opacity = "1";
-  setTimeout(()=>feedbackContainer.style.opacity="0",1200);
-}
-
+// ---------- FIN MULTIPLE ----------
 function showEnding(){
   questionsContainer.innerHTML = "";
   const endingDiv = document.createElement("div");
   endingDiv.className="ending";
-  let type="";
-  let message="";
-  if(score>=60){type="stability";message="Vous avez maintenu la stabilité, mais à quel prix ?";}
-  else if(score>=35){type="authoritarian";message="Le pouvoir s’est durci, la peur gouverne maintenant.";}
-  else{type="collapse";message="Tout s’effondre, l’implosion est inévitable.";}
+  let type="", message="";
+
+  if(score>=60){
+    type="stability";
+    message="Vous avez maintenu la stabilité, mais à quel prix ?";
+    if(playerTags.includes("manipulate")) message+=" Les complots internes continuent…";
+  } else if(score>=35){
+    type="authoritarian";
+    message="Le pouvoir s’est durci, la peur gouverne maintenant.";
+    if(playerTags.includes("strategize")) message+=" Les alliances sont fragiles.";
+  } else{
+    type="collapse";
+    message="Tout s’effondre, l’implosion est inévitable.";
+    if(playerTags.includes("suppress")) message+=" Le silence n’a rien sauvé.";
+  }
+
   endingDiv.classList.add(type);
   endingDiv.innerHTML = `<h2>${message}</h2><pre>Score final : ${score}\nTags acquis : ${playerTags.join(", ")}</pre>`;
   questionsContainer.appendChild(endingDiv);
 }
 
-// ---------- INITIALISATION ----------
+// ---------- LANCEMENT ----------
 showQuestion();
