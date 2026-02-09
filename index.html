@@ -2,35 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Politique</title>
+  <title>Jeu</title>
+  <!-- Lien vers ton CSS externe -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div id="container">
-
-    <h1>POLITIQUE</h1>
-
-    <div id="score-wrapper">
-      <div id="score-label">STABILITÉ SYSTÉMIQUE</div>
-      <div id="score-bar">
-        <div id="score-fill"></div>
-      </div>
-    </div>
-
-    <div id="question-container">
-      <div id="question-text"></div>
-      <div id="answers-container"></div>
-      <div id="feedback-text"></div>
-    </div>
-
-    <div id="final-container">
-      <div id="final-text"></div>
-      <button id="restart-btn">REINITIALISER LA SIMULATION</button>
-    </div>
-
+  <div id="game" style="padding:20px; font-family:monospace;">
+    <!-- Les questions et boutons seront injectés ici par le JS -->
   </div>
 
-  <script src="script.js"></script>
+  <!-- Lien vers ton JS externe -->
+  <script src="gameEngine.js"></script>
 </body>
 </html>
