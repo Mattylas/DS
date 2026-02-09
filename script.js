@@ -125,47 +125,6 @@ function resolveEnding() {
   return "C";
 }
 const QUESTIONS = [
-
-/* ==============================
-   I — QUESTIONS MIROIRS RÉACTIVES
-   ============================== */
-{
-  id: "Q_MIRROR_INFO",
-  condition: (ghosts) => ghosts.centralisation || ghosts.realites_paralleles,
-  text: "Le système fonctionne. Trop bien.\nLes flux sont stables. Prévisibles.\nQue fais-tu maintenant ?",
-  choices: [
-    { id: "reinforce_control", label: "Renforcer encore le contrôle", type: "controle", stability: +6, ghost: "surcontrole", feedback: "La stabilité augmente. Le système devient fragile autrement. Il n’a plus d’anticorps." },
-    { id: "ease_pressure", label: "Relâcher légèrement la pression", type: "integration", stability: -2, ghost: "tolerance_instable", feedback: "Le retour du bruit provoque des erreurs. Le système apprend. Lentement." },
-    { id: "simulate_freedom", label: "Créer une illusion de liberté", type: "communication", stability: +3, ghost: "liberte_simulee", feedback: "Les flux semblent libres. Ils ne le sont pas. La population sent la différence sans pouvoir la nommer." },
-    { id: "do_nothing", label: "Ne rien changer", type: "passivite", stability: 0, ghost: "inertie", feedback: "Le système adore la continuité. Jusqu’à ce qu’elle se brise d’un coup." }
-  ]
-},
-{
-  id: "Q_MIRROR_PASSIVITY",
-  condition: (ghosts) => ghosts.passivite || ghosts.retard_systemique,
-  text: "On vous reproche de ne pas décider.\nCette fois, le système attend.",
-  choices: [
-    { id: "assume_waiting", label: "Assumer publiquement l’attentisme", type: "communication", stability: -3, ghost: "attentisme_assume", feedback: "La franchise déstabilise. Certains comprennent. D’autres paniquent." },
-    { id: "brutal_decision", label: "Prendre une décision brutale", type: "repression", stability: +5, ghost: "decision_violente", feedback: "L’action rassure, même mauvaise. Vous venez de créer un précédent." },
-    { id: "delegate", label: "Déléguer", type: "integration", stability: -1, ghost: "pouvoir_diffus", feedback: "La responsabilité se dilue. Le pouvoir aussi." },
-    { id: "change_topic", label: "Changer de sujet", type: "passivite", stability: 0, ghost: "evitement", feedback: "Le système note l’esquive. Il s’en souviendra au mauvais moment." }
-  ]
-},
-{
-  id: "Q_MIRROR_SYMBOL",
-  condition: (ghosts) => ghosts.culte || ghosts.spectacle,
-  text: "Ils attendent un signe.\nPas une mesure. Pas une réforme.\nUn signe.",
-  choices: [
-    { id: "show_yourself", label: "Se montrer", type: "symbolique", stability: +4, ghost: "incarnation", feedback: "L’image rassure. Elle crée aussi une dépendance dangereuse." },
-    { id: "abstract_symbol", label: "Créer un symbole abstrait", type: "symbolique", stability: -2, ghost: "symbole_ambigu", feedback: "Chacun y projette ce qu’il veut. Le système perd un peu de contrôle." },
-    { id: "refuse_symbol", label: "Refuser le symbole", type: "communication", stability: -4, ghost: "anti_symbole", feedback: "Le refus devient lui-même un symbole. Pas celui que vous espériez." },
-    { id: "let_emerge", label: "Laisser émerger un symbole non officiel", type: "integration", stability: -3, ghost: "mythe_autonome", feedback: "Vous n’en êtes plus l’auteur. Juste le témoin." }
-  ]
-},
-
-/* ==============================
-   II — QUESTIONS STANDARD Q01 → Q10
-   ============================== */
 {
   id: "Q01",
   text: "Les indicateurs sont bons.\nPersonne ne demande pourquoi.",
