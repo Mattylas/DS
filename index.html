@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Politique</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Politique</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>Politique</h1>
-      <div id="score">Stabilité : 50</div>
-    </header>
-    <main id="questions"></main>
-    <div id="feedback"></div>
-  </div>
+    <div id="gameContainer">
+        <h1>Politique</h1>
+        <div id="scoreContainer">
+            <div id="scoreBar"></div>
+        </div>
 
-  <!-- Sons et musique -->
-  <audio id="ambient" src="sounds/ambiance.mp3" loop autoplay></audio>
-  <audio id="lightningSound" src="sounds/eclair.mp3"></audio>
+        <!-- Conteneur des questions et réponses -->
+        <div id="questionBox"></div>
 
-  <script src="script.js"></script>
+        <!-- Conteneur du feedback narratif -->
+        <div id="feedback"></div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
