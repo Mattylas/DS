@@ -1,101 +1,18 @@
-/* Base */
-body {
-  margin: 0;
-  padding: 0;
+button {
+  margin: 3px;
+  padding: 5px;
+  border: 1px solid #0F0;
   background: #000;
-  color: #00ff66;
-  font-family: "Courier New", monospace;
+  color: #0F0;
+  cursor: pointer;
 }
 
-#container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
+button:hover {
+  background: #0F5;
+  color: #000;
 }
 
-/* Titres */
-h1 {
-  text-align: center;
-  font-size: 1.6rem;
-  margin-bottom: 30px;
-  letter-spacing: 1px;
-}
-
-/* Score */
-#score-wrapper {
-  margin-bottom: 30px;
-}
-
-#score-label {
-  font-size: 0.9rem;
-  margin-bottom: 6px;
-}
-
-#score-bar {
-  width: 100%;
-  height: 18px;
-  border: 1px solid #00ff66;
-  background: #002b16;
-}
-
-#score-fill {
-  height: 100%;
-  width: 50%;
-  background: #00ff66;
-  transition: width 0.4s ease;
-}
-
-/* Question */
-#question-text {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+#game h2 {
+  color: #0F0;
   white-space: pre-line;
-}
-
-/* Réponses */
-#answers-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.answer-btn {
-  background: #000;
-  color: #00ff66;
-  border: 1px solid #00ff66;
-  padding: 10px;
-  cursor: pointer;
-  text-align: left;
-}
-
-.answer-btn:hover {
-  background: #003d20;
-}
-
-/* Feedback */
-#feedback-text {
-  margin-top: 20px;
-  font-style: italic;
-  min-height: 40px;
-}
-
-/* Fin */
-#final-container {
-  display: none;
-  margin-top: 40px;
-  border-top: 1px solid #00ff66;
-  padding-top: 20px;
-}
-
-#restart-btn {
-  margin-top: 20px;
-  background: #000;
-  border: 1px solid #00ff66;
-  color: #00ff66;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-#restart-btn:hover {
-  background: #003d20;
 }
