@@ -1,199 +1,219 @@
-// ================================
-// VARIABLES PRINCIPALES
-// ================================
-let currentQuestionIndex = 0;
-let stability = 50; // Score initial de stabilité (0-100)
-let ghosts = 0; // Perturbations invisibles
-
-const questionText = document.getElementById("question-text");
-const answersContainer = document.getElementById("answers-container");
-const stabilityBar = document.getElementById("stability-bar");
-const feedbackBox = document.getElementById("feedback");
-const questionContainer = document.getElementById("question-container");
-
+// ============================
+// Données des questions
+// ============================
 const questionsData = [
   {
     text: "Politique\n\nVotre première décision : comment orienter les flux d'information au sein du système ?",
     answers: [
-      { label: "Modifier les flux et laisser agir raisonnablement", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ Vous orientez le système sans provoquer de résistance." },
-      { label: "Centraliser toutes les décisions", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Centralisation excessive : le risque de conflit augmente." },
-      { label: "Ignorer les flux et rester passif", type: "passive", difficulty: 2, baseImpact: -2, feedback: "⚠️ Passivité : les anomalies se multiplient." },
-      { label: "Créer de nouvelles règles contraignantes", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Trop visible : les acteurs résistent." }
+      { label: "Modifier les flux et laisser agir raisonnablement", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ Par l'orientation subtile, le système se stabilise sans résistance." },
+      { label: "Centraliser toutes les décisions", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Centralisation visible : les acteurs se méfient et les anomalies apparaissent." },
+      { label: "Ignorer les flux et rester passif", type: "passive", difficulty: 4, baseImpact: -3, feedback: "⚠️ La passivité laisse les flux se dévier, perturbant la stabilité." },
+      { label: "Créer de nouvelles règles contraignantes", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Trop visible : résistance et ghosts se multiplient." }
     ]
   },
   {
-    text: "Gestion des signaux faibles\n\nUne opposition mineure apparaît. Que faites-vous ?",
+    text: "Gouverner l'architecture, pas les individus\n\nOù focalisez-vous vos efforts ?",
     answers: [
-      { label: "Intégrer et cartographier les signaux", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ L'opposition devient un indicateur utile." },
-      { label: "Punir l’émetteur", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ La répression attire l’attention et génère des ghosts." },
-      { label: "Ignorer le signal", type: "passive", difficulty: 4, baseImpact: -3, feedback: "⚠️ Ignorer crée de l’incertitude et du chaos latent." },
-      { label: "Communiquer publiquement pour calmer", type: "direct", difficulty: 6, baseImpact: 2, feedback: "⚠️ Trop visible : effet limité sur la stabilité réelle." }
+      { label: "Sur les flux et les calendriers, pas sur les personnes", type: "indirect", difficulty: 3, baseImpact: 6, feedback: "✅ L'architecture absorbe les variations humaines." },
+      { label: "Sur les individus clés uniquement", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Trop ciblé : résistance et erreurs concentrées." },
+      { label: "Ne rien changer, attendre", type: "passive", difficulty: 4, baseImpact: -3, feedback: "⚠️ L’inertie laisse les failles s’étendre." },
+      { label: "Imposer des sanctions directes", type: "direct", difficulty: 8, baseImpact: -6, feedback: "⚠️ Coercition évidente : perturbations et ghosts." }
     ]
   },
   {
-    text: "Temporalité stratégique\n\nUn conflit émerge dans le système. Comment réagissez-vous ?",
+    text: "Surveillance et corrélation\n\nComment obtenir des informations sans être découvert ?",
     answers: [
-      { label: "Étaler le processus et multiplier les consultations", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ La durée neutralise la crise, votre système absorbe." },
-      { label: "Décider immédiatement et imposer", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Trop brusque : cela crée des ghosts visibles." },
-      { label: "Laisser faire sans intervention", type: "passive", difficulty: 4, baseImpact: -2, feedback: "⚠️ Risque d’instabilité : certains flux se dévient." },
-      { label: "Organiser une réunion décisive", type: "direct", difficulty: 6, baseImpact: -1, feedback: "⚠️ Trop centralisé : quelques acteurs résistent." }
+      { label: "Corréler les comportements, ne pas écouter le contenu", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ La corrélation préserve la stabilité et l’anonymat." },
+      { label: "Écouter directement les communications", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Risque élevé : découvert et perturbations." },
+      { label: "Ne rien collecter", type: "passive", difficulty: 4, baseImpact: -3, feedback: "⚠️ Absence de données, décisions moins sûres." },
+      { label: "Stocker tout le contenu sans filtrer", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Exposition maximale : audit et ghosts immédiats." }
     ]
   },
   {
-    text: "Transparence fonctionnelle\n\nQue montrer aux observateurs ?",
+    text: "Rester strictement légal\n\nQuelle est votre stratégie pour protéger votre action ?",
     answers: [
-      { label: "Procédures visibles, mécanismes cachés", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ Illusion de contrôle : les observateurs sont rassurés." },
-      { label: "Décisions stratégiques et calculs exacts", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ Trop visible : risque d’audit et d’interférence." },
-      { label: "Flux techniques complets", type: "direct", difficulty: 8, baseImpact: -8, feedback: "⚠️ Catastrophique : tout devient vulnérable." },
-      { label: "Ne rien montrer", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ Suspicion : la stabilité perçue chute." }
+      { label: "Agir toujours dans le cadre légal et anticiper les audits", type: "indirect", difficulty: 3, baseImpact: 6, feedback: "✅ La légalité devient un bouclier invisible." },
+      { label: "Exploiter des zones grises visibles", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Trop visible : risque de soupçon et destabilisation." },
+      { label: "Ne pas documenter les actions", type: "passive", difficulty: 4, baseImpact: -3, feedback: "⚠️ L’absence de preuve fragilise la justification future." },
+      { label: "Agir hors du cadre et corriger après", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Échec critique : perturbations et ghosts." }
     ]
   },
   {
-    text: "Fragmentation décisionnelle\n\nComment structurer les responsabilités pour maintenir la stabilité ?",
+    text: "Ne jamais centraliser la décision\n\nComment organisez-vous la prise de décision ?",
     answers: [
-      { label: "Segmenter et multiplier les validations", type: "indirect", difficulty: 4, baseImpact: 6, feedback: "✅ La responsabilité diffuse rend le système robuste." },
-      { label: "Concentrer les décisions sur un seul acteur", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Un point de défaillance unique expose à l’instabilité." },
-      { label: "Laisser chaque acteur décider librement", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ Trop d’indépendance : incohérences et conflits apparaissent." },
-      { label: "Créer des processus redondants inutiles", type: "direct", difficulty: 6, baseImpact: 1, feedback: "⚠️ Cela absorbe de l’attention mais augmente la complexité." }
-    ]
-  },
-  {
-    text: "Éthique opérationnelle\n\nComment un acteur se protège-t-il moralement ?",
-    answers: [
-      { label: "Suivre la légalité, la continuité et la prudence", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ Alignement parfait avec la stabilité du système." },
-      { label: "Agir selon ses convictions personnelles", type: "direct", difficulty: 7, baseImpact: -4, feedback: "⚠️ Risque de conflit interne et anomalies." },
-      { label: "Dénoncer toute anomalie immédiatement", type: "direct", difficulty: 6, baseImpact: -5, feedback: "⚠️ Trop visible : fragilise le cadre." },
-      { label: "Ne rien faire et rester passif", type: "passive", difficulty: 4, baseImpact: -2, feedback: "⚠️ Risque de chaos latent si les flux dévient." }
-    ]
-  },
-  {
-    text: "Gestion des révélations\n\nUne fuite est détectée, que faites-vous ?",
-    answers: [
-      { label: "Insérer l’événement dans un cadre plus vaste et flou", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ La fuite devient une donnée inoffensive." },
-      { label: "Nier publiquement la fuite", type: "direct", difficulty: 6, baseImpact: -4, feedback: "⚠️ L’attention se concentre, nouveaux ghosts apparaissent." },
-      { label: "Ignorer et ne rien faire", type: "passive", difficulty: 5, baseImpact: -2, feedback: "⚠️ La fuite crée des spéculations et fragilise la perception." },
-      { label: "Punir l’employé suspecté", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ Trop visible : cela attire les critiques et génère des ghosts." }
-    ]
-  },
-  {
-    text: "Neutraliser sans interdire\n\nComment ralentir une action indésirable sans créer d’alerte ?",
-    answers: [
-      { label: "Complexifier les procédures et multiplier validations", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ La cible est ralentie sans s’en rendre compte." },
-      { label: "Interdire directement", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ L’interdiction attire l’attention et suscite résistance." },
-      { label: "Ne rien faire", type: "passive", difficulty: 5, baseImpact: -2, feedback: "⚠️ Le flux non contrôlé peut créer des anomalies." },
-      { label: "Communiquer publiquement une recommandation", type: "direct", difficulty: 6, baseImpact: 1, feedback: "⚠️ Trop visible : l’effet est limité." }
-    ]
-  },
-  {
-    text: "Autorité invisible\n\nComment maintenir le contrôle sans être identifié comme responsable ?",
-    answers: [
-      { label: "Fragmenter les décisions et documenter", type: "indirect", difficulty: 4, baseImpact: 6, feedback: "✅ La responsabilité est collective, le contrôle reste invisible." },
-      { label: "Centraliser pour s’affirmer", type: "direct", difficulty: 8, baseImpact: -6, feedback: "⚠️ Trop visible : génère résistance et ghosts." },
-      { label: "Ne rien faire", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ La passivité réduit le contrôle réel." },
-      { label: "Menacer subtilement", type: "direct", difficulty: 7, baseImpact: -4, feedback: "⚠️ L’effet peut être contre-productif et crée des ghosts." }
-    ]
-  },
-  {
-    text: "Pourquoi tiens-tu encore le pouvoir ?\n\nQuel principe décisif maintient votre système ?",
-    answers: [
-      { label: "Chaque acteur agit raisonnablement et les flux sont orientés", type: "indirect", difficulty: 3, baseImpact: 6, feedback: "✅ La stabilité est assurée, le système est imperceptible." },
-      { label: "Tout contrôle est centralisé sur vous", type: "direct", difficulty: 9, baseImpact: -8, feedback: "⚠️ Trop visible : risque majeur d’échec." },
-      { label: "Ne rien faire et espérer que tout se maintienne", type: "passive", difficulty: 5, baseImpact: -4, feedback: "⚠️ La passivité expose le système aux anomalies." },
-      { label: "Menacer et intimider les acteurs", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ L’effet est instable et crée de nombreux ghosts." }
+      { label: "Fragmenter et justifier chaque action individuellement", type: "indirect", difficulty: 3, baseImpact: 6, feedback: "✅ La responsabilité diffuse stabilise le système." },
+      { label: "Tout centraliser sur un acteur clé", type: "direct", difficulty: 8, baseImpact: -6, feedback: "⚠️ Point de défaillance unique : risque maximal." },
+      { label: "Laisser chacun décider librement", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ Trop d’autonomie génère incohérences et chaos latent." },
+      { label: "Multiplier les validations inutiles", type: "direct", difficulty: 6, baseImpact: 1, feedback: "⚠️ Complexité accrue mais absorbante pour les flux." }
     ]
   }
 ];
-
-
-// ================================
-// FONCTIONS
-// ================================
-
-// Calcule l'impact en fonction du type et difficulté
-function calculateImpact(answer) {
-  const typeMod = answer.type === "direct" ? 1 : answer.type === "passive" ? 0.7 : 0.85;
-  const randomFactor = Math.random() * 0.4 + 0.8; // 0.8 à 1.2
-  let impact = answer.baseImpact * typeMod * randomFactor;
-
-  if (answer.type === "direct" && Math.random() * 10 < answer.difficulty) {
-    impact = impact / 2; // échec partiel
-    ghosts += 1;
+questionsData.push(
+  {
+    text: "Transformer la peur en prudence\n\nComment réagissez-vous face à un acteur potentiellement dangereux ?",
+    answers: [
+      { label: "Montrer subtilement les conséquences probables", type: "indirect", difficulty: 4, baseImpact: 5, feedback: "✅ La prudence est défendable, la peur devient autocorrectrice." },
+      { label: "Menacer directement l'acteur", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ La menace bruyante attire les ghosts et l'instabilité." },
+      { label: "Ne rien faire, espérer que l'acteur se stabilise", type: "passive", difficulty: 5, baseImpact: -4, feedback: "⚠️ L’inertie laisse le risque évoluer sans contrôle." },
+      { label: "Punir préventivement", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Coercition extrême : chaos et perturbation immédiate." }
+    ]
+  },
+  {
+    text: "Neutraliser sans interdire\n\nComment traiter les actions indésirables mais non critiques ?",
+    answers: [
+      { label: "Complexifier les procédures et retarder subtilement", type: "indirect", difficulty: 3, baseImpact: 5, feedback: "✅ Les acteurs se fatiguent, le système reste intact." },
+      { label: "Interdire explicitement", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ Interdiction visible : attention non désirée et ghost immédiat." },
+      { label: "Ne rien faire", type: "passive", difficulty: 4, baseImpact: -3, feedback: "⚠️ L’absence d’action permet aux écarts de croître." },
+      { label: "Appliquer des sanctions lourdes", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Action brutale : chaos assuré." }
+    ]
+  },
+  {
+    text: "Laisser la démocratie fonctionner\n\nComment gérez-vous les processus visibles ?",
+    answers: [
+      { label: "Permettre débats et élections visibles mais non décisives", type: "indirect", difficulty: 3, baseImpact: 6, feedback: "✅ La démocratie spectacle stabilise sans céder le contrôle." },
+      { label: "Ignorer complètement les mécanismes démocratiques", type: "passive", difficulty: 5, baseImpact: -4, feedback: "⚠️ Trop d’opacité alimente suspicion et instabilité." },
+      { label: "Manipuler directement les résultats", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Manipulation découverte : chaos et ghost majeur." },
+      { label: "Bloquer les oppositions visibles", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ Censure directe : contestation amplifiée." }
+    ]
+  },
+  {
+    text: "Protéger le silence\n\nQue faites-vous des informations sensibles circulant dans le système ?",
+    answers: [
+      { label: "Créer des incitations à ne rien divulguer", type: "indirect", difficulty: 4, baseImpact: 6, feedback: "✅ Le silence devient rationnel, le système reste imperceptible." },
+      { label: "Imposer un secret strict", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Interdiction stricte visible : résistance et ghost." },
+      { label: "Ne rien contrôler", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ La fuite devient probable et déstabilise." },
+      { label: "Punir toute divulgation", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Répression évidente : chaos et perte de contrôle." }
+    ]
+  },
+  {
+    text: "Ne jamais prouver l’existence du système\n\nQuelle stratégie adoptez-vous pour rester invisible ?",
+    answers: [
+      { label: "Laisser indices flous, anomalies explicables et soupçons sans preuve", type: "indirect", difficulty: 4, baseImpact: 5, feedback: "✅ Le système reste une rumeur, impossible à attaquer." },
+      { label: "Rendre le système visible pour justifier son action", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Tout devient attaquable : ghost et perturbation." },
+      { label: "Ne rien cacher mais compter sur la chance", type: "passive", difficulty: 6, baseImpact: -4, feedback: "⚠️ La visibilité involontaire fragilise la stabilité." },
+      { label: "Nier toute opération activement", type: "direct", difficulty: 7, baseImpact: -6, feedback: "⚠️ Négation directe : suspicion accrue et chaos." }
+    ]
   }
+);
+questionsData.push(
+  {
+    text: "Accepter l’accusation ultime\n\nComment réagissez-vous face aux critiques du système ?",
+    answers: [
+      { label: "Ne pas répondre, rappeler seulement légalité et stabilité", type: "indirect", difficulty: 3, baseImpact: 6, feedback: "✅ Silence et justification technique : le système se renforce." },
+      { label: "Répondre en publiant une déclaration morale", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Trop visible : accentuation des critiques et apparition de ghosts." },
+      { label: "Ignorer complètement la critique", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ Passivité : perception d’injustice et instabilité accrue." },
+      { label: "Réprimer les critiques activement", type: "direct", difficulty: 8, baseImpact: -7, feedback: "⚠️ Coercition : chaos et ghost majeur." }
+    ]
+  },
+  {
+    text: "Le pouvoir parfait\n\nComment rendre le système incontournable ?",
+    answers: [
+      { label: "Rendre toute alternative irréaliste", type: "indirect", difficulty: 4, baseImpact: 6, feedback: "✅ Toute désobéissance devient inutile, système achevé." },
+      { label: "Imposer la conformité par la peur", type: "direct", difficulty: 8, baseImpact: -6, feedback: "⚠️ Peur bruyante : résistance et ghosts." },
+      { label: "Ne rien faire et compter sur la continuité", type: "passive", difficulty: 6, baseImpact: -4, feedback: "⚠️ Laisser faire fragilise la perception du système." },
+      { label: "Manipuler tous les acteurs individuellement", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Trop complexe, risque d’erreurs et de chaos." }
+    ]
+  },
+  {
+    text: "Illusion finale\n\nComment assurez-vous que le système fonctionne sans être reconnu ?",
+    answers: [
+      { label: "Tout fonctionne, se rend indispensable, invisible", type: "indirect", difficulty: 4, baseImpact: 6, feedback: "✅ L’illusion est totale : impossible à contester." },
+      { label: "Montrer le contrôle et la puissance du système", type: "direct", difficulty: 8, baseImpact: -6, feedback: "⚠️ Visibilité excessive : attaque et destabilisation." },
+      { label: "Ne pas intervenir et laisser les acteurs décider", type: "passive", difficulty: 5, baseImpact: -3, feedback: "⚠️ Trop de liberté : incohérence et perturbations." },
+      { label: "Réagir seulement quand une crise apparaît", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Intervention tardive : ghosts et perte de contrôle." }
+    ]
+  },
+  {
+    text: "Test ultime\n\nPourquoi tiens-tu encore le pouvoir ?",
+    answers: [
+      { label: "Parce que tout est invisible, irréfutable et systémique", type: "indirect", difficulty: 4, baseImpact: 7, feedback: "✅ Maîtrise parfaite : le système est auto-stabilisé." },
+      { label: "Parce que j’ai utilisé peur et coercition", type: "direct", difficulty: 8, baseImpact: -6, feedback: "⚠️ Autoritarisme visible : contestation et ghost." },
+      { label: "Parce que personne ne remarque mon inaction", type: "passive", difficulty: 5, baseImpact: -4, feedback: "⚠️ Passivité : perte progressive de contrôle." },
+      { label: "Parce que je manipule individuellement chaque acteur", type: "direct", difficulty: 7, baseImpact: -5, feedback: "⚠️ Trop complexe : erreurs et chaos." }
+    ]
+  }
+);
+let currentQuestion = 0;
+let stability = 50; // départ 50%
+const scoreFill = document.getElementById('score-fill');
+const questionText = document.getElementById('question-text');
+const answersContainer = document.getElementById('answers-container');
+const feedbackText = document.getElementById('feedback-text');
+const finalContainer = document.getElementById('final-container');
+const finalText = document.getElementById('final-text');
+const restartBtn = document.getElementById('restart-btn');
 
-  return Math.round(impact);
+function updateScore(value) {
+  stability += value;
+  if(stability > 100) stability = 100;
+  if(stability < 0) stability = 0;
+  scoreFill.style.width = stability + '%';
 }
 
-// Affiche la question
+function getSuccess(impact, difficulty) {
+  // Probabilité inversement proportionnelle à la difficulté
+  let chance = Math.max(10, 90 - difficulty * 10);
+  let roll = Math.random() * 100;
+  return roll < chance ? impact : impact * -1; 
+}
+
 function showQuestion() {
-  const q = questionsData[currentQuestionIndex];
-  if (!q) return;
+  if(currentQuestion >= questionsData.length) {
+    showFinal();
+    return;
+  }
 
+  const q = questionsData[currentQuestion];
   questionText.textContent = q.text;
-  answersContainer.innerHTML = "";
-  feedbackBox.textContent = "";
+  answersContainer.innerHTML = '';
 
-  q.answers.forEach((ans, i) => {
-    const btn = document.createElement("button");
+  q.answers.forEach((ans, idx) => {
+    const btn = document.createElement('button');
     btn.textContent = ans.label;
-    btn.classList.add("answer-btn");
-    btn.addEventListener("click", () => selectAnswer(i));
+    btn.className = 'answer-btn';
+    btn.onclick = () => handleAnswer(ans);
     answersContainer.appendChild(btn);
   });
+
+  feedbackText.textContent = '';
 }
 
-// Gestion d'un choix
-function selectAnswer(idx) {
-  const q = questionsData[currentQuestionIndex];
-  const ans = q.answers[idx];
-  const impact = calculateImpact(ans);
+function handleAnswer(ans) {
+  const impact = getSuccess(ans.baseImpact, ans.difficulty);
+  updateScore(impact);
 
-  stability += impact;
-  stability = Math.max(0, Math.min(100, stability));
-  stabilityBar.style.width = stability + "%";
+  // feedback textuel
+  feedbackText.textContent = ans.feedback + ` (impact ${impact>0?'+':''}${impact})`;
 
-  feedbackBox.innerHTML = `
-    <p>${ans.feedback}</p>
-    <p>Impact sur la stabilité : <strong>${impact > 0 ? "+" : ""}${impact}</strong></p>
-    <p>Ghosts : ${ghosts}</p>
-  `;
-
-  setTimeout(() => {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questionsData.length) {
-      showQuestion();
-    } else {
-      showFinalScreen();
-    }
-  }, 2000);
-}
-
-// Écran final
-function showFinalScreen() {
-  questionContainer.classList.add("final-screen");
-  questionText.textContent = "";
-  answersContainer.innerHTML = "";
-  feedbackBox.textContent = "";
-
-  let title = "Simulation terminée";
-  let message = "";
-
-  if (stability >= 70 && ghosts === 0) {
-    message = "Stabilité maximale : votre système est invisible et robuste.";
-  } else if (stability >= 50 && ghosts <= 2) {
-    message = "Stabilité acceptable : certaines anomalies persistent.";
-  } else {
-    message = "Instabilité critique : le système est en danger. Les ghosts prolifèrent.";
+  // effet fantôme aléatoire si impact négatif
+  if(impact < 0 && Math.random() < 0.3) {
+    feedbackText.textContent += " 👻 Ghost détecté !";
   }
 
-  questionContainer.innerHTML = `
-    <h2>${title}</h2>
-    <p>${message}</p>
-    <p>Score final de stabilité : ${stability}</p>
-    <p>Ghosts finaux : ${ghosts}</p>
-  `;
+  currentQuestion++;
+  setTimeout(showQuestion, 1500);
 }
 
-// ================================
-// INITIALISATION
-// ================================
+function showFinal() {
+  questionText.style.display = 'none';
+  answersContainer.style.display = 'none';
+  feedbackText.style.display = 'none';
+  finalContainer.style.display = 'block';
+
+  if(stability >= 70) finalText.textContent = "Système stable : succès total ✅";
+  else if(stability >= 40) finalText.textContent = "Autoritarisme : stabilité fragile ⚠️";
+  else finalText.textContent = "Implosion : chaos total 💥";
+}
+
+restartBtn.onclick = () => {
+  currentQuestion = 0;
+  stability = 50;
+  questionText.style.display = 'block';
+  answersContainer.style.display = 'flex';
+  feedbackText.style.display = 'block';
+  finalContainer.style.display = 'none';
+  showQuestion();
+};
+
+// démarrage
 showQuestion();
