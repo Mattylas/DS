@@ -6,30 +6,29 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>Politique</h1>
-      <div id="score-container">
-        <span>Stabilité : </span>
-        <div id="score-bar"><div id="score-fill"></div></div>
-      </div>
-    </header>
 
-    <main>
-      <div id="question-container">
-        <p id="question-text">Chargement...</p>
-        <div id="answers-container"></div>
-      </div>
+  <div id="container">
 
-      <div id="feedback-container">
-        <p id="feedback-text"></p>
-      </div>
+    <h1>POLITIQUE</h1>
 
-      <div id="final-container" style="display:none;">
-        <p id="final-text"></p>
-        <button id="restart-btn">Recommencer</button>
+    <div id="score-wrapper">
+      <div id="score-label">STABILITÉ SYSTÉMIQUE</div>
+      <div id="score-bar">
+        <div id="score-fill"></div>
       </div>
-    </main>
+    </div>
+
+    <div id="question-container">
+      <div id="question-text"></div>
+      <div id="answers-container"></div>
+      <div id="feedback-text"></div>
+    </div>
+
+    <div id="final-container">
+      <div id="final-text"></div>
+      <button id="restart-btn">REINITIALISER LA SIMULATION</button>
+    </div>
+
   </div>
 
   <script src="script.js"></script>
