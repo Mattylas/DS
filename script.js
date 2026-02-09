@@ -132,6 +132,97 @@ function resolveEnding() {
 window.SystemEngine = { state: systemState, applyChoice, questionAvailable, resolveEnding, renderQuestion };
 ];
 const QUESTIONS = [
+
+/* ==============================
+   I — QUESTIONS MIROIRS RÉACTIVES
+   ============================== */
+{
+  id: "Q_MIRROR_INFO",
+  condition: (ghosts) => ghosts.centralisation || ghosts.realites_paralleles,
+  text: "Le système fonctionne. Trop bien.\nLes flux sont stables. Prévisibles.\nQue fais-tu maintenant ?",
+  choices: [
+    { id: "reinforce_control", label: "Renforcer encore le contrôle", type: "controle", stability: +6, ghost: "surcontrole", feedback: "La stabilité augmente. Le système devient fragile autrement. Il n’a plus d’anticorps." },
+    { id: "ease_pressure", label: "Relâcher légèrement la pression", type: "integration", stability: -2, ghost: "tolerance_instable", feedback: "Le retour du bruit provoque des erreurs. Le système apprend. Lentement." },
+    { id: "simulate_freedom", label: "Créer une illusion de liberté", type: "communication", stability: +3, ghost: "liberte_simulee", feedback: "Les flux semblent libres. Ils ne le sont pas. La population sent la différence sans pouvoir la nommer." },
+    { id: "do_nothing", label: "Ne rien changer", type: "passivite", stability: 0, ghost: "inertie", feedback: "Le système adore la continuité. Jusqu’à ce qu’elle se brise d’un coup." }
+  ]
+},
+{
+  id: "Q_MIRROR_PASSIVITY",
+  condition: (ghosts) => ghosts.passivite || ghosts.retard_systemique,
+  text: "On vous reproche de ne pas décider.\nCette fois, le système attend.",
+  choices: [
+    { id: "assume_waiting", label: "Assumer publiquement l’attentisme", type: "communication", stability: -3, ghost: "attentisme_assume", feedback: "La franchise déstabilise. Certains comprennent. D’autres paniquent." },
+    { id: "brutal_decision", label: "Prendre une décision brutale", type: "repression", stability: +5, ghost: "decision_violente", feedback: "L’action rassure, même mauvaise. Vous venez de créer un précédent." },
+    { id: "delegate", label: "Déléguer", type: "integration", stability: -1, ghost: "pouvoir_diffus", feedback: "La responsabilité se dilue. Le pouvoir aussi." },
+    { id: "change_topic", label: "Changer de sujet", type: "passivite", stability: 0, ghost: "evitement", feedback: "Le système note l’esquive. Il s’en souviendra au mauvais moment." }
+  ]
+},
+{
+  id: "Q_MIRROR_SYMBOL",
+  condition: (ghosts) => ghosts.culte || ghosts.spectacle,
+  text: "Ils attendent un signe.\nPas une mesure. Pas une réforme.\nUn signe.",
+  choices: [
+    { id: "show_yourself", label: "Se montrer", type: "symbolique", stability: +4, ghost: "incarnation", feedback: "L’image rassure. Elle crée aussi une dépendance dangereuse." },
+    { id: "abstract_symbol", label: "Créer un symbole abstrait", type: "symbolique", stability: -2, ghost: "symbole_ambigu", feedback: "Chacun y projette ce qu’il veut. Le système perd un peu de contrôle." },
+    { id: "refuse_symbol", label: "Refuser le symbole", type: "communication", stability: -4, ghost: "anti_symbole", feedback: "Le refus devient lui-même un symbole. Pas celui que vous espériez." },
+    { id: "let_emerge", label: "Laisser émerger un symbole non officiel", type: "integration", stability: -3, ghost: "mythe_autonome", feedback: "Vous n’en êtes plus l’auteur. Juste le témoin." }
+  ]
+},
+
+/* ==============================
+   II — QUESTIONS STANDARD Q01 → Q10
+   ============================== */
+{
+  id: "Q01",
+  text: "Les indicateurs sont bons.\nPersonne ne demande pourquoi.",
+  choices: [
+    { id: "trust_metrics", label: "Faire confiance aux chiffres", type: "passivite", stability: +2, ghost: "aveuglement", feedback: "Les chiffres rassurent. Ils masquent autre chose." },
+    { id: "audit", label: "Lancer un audit discret", type: "controle", stability: -1, ghost: "suspicion", feedback: "Le système se regarde lui-même. Il n’aime pas ça." },
+    { id: "communicate", label: "Communiquer sur la réussite", type: "communication", stability: +3, ghost: "auto_congratulation", feedback: "La confiance augmente. La pression aussi." },
+    { id: "delay", label: "Reporter toute décision", type: "passivite", stability: 0, ghost: "retard_systemique", feedback: "Le temps passe. Le système accumule." }
+  ]
+},
+{
+  id: "Q02",
+  text: "Une anomalie mineure apparaît.\nElle disparaît seule.",
+  choices: [
+    { id: "ignore", label: "Ignorer", type: "passivite", stability: +1, ghost: "normalisation", feedback: "Le système apprend à vivre avec l’erreur." },
+    { id: "log", label: "La consigner", type: "controle", stability: 0, ghost: "trace", feedback: "Une mémoire se crée. Elle sera relue." },
+    { id: "publicize", label: "La rendre publique", type: "communication", stability: -3, ghost: "panique_legere", feedback: "La transparence rassure certains. Inquiète les autres." },
+    { id: "correct", label: "Corriger immédiatement", type: "controle", stability: +2, ghost: "correction_reflexe", feedback: "Rapide. Efficace. Peut-être trop." }
+  ]
+},
+{
+  id: "Q03",
+  text: "Un acteur secondaire devient central sans autorisation.",
+  choices: [
+    { id: "formalize", label: "Formaliser son rôle", type: "integration", stability: +2, ghost: "institutionnalisation", feedback: "Le système absorbe l’anomalie. Elle devient norme." },
+    { id: "sideline", label: "Le marginaliser discrètement", type: "controle", stability: +3, ghost: "neutralisation", feedback: "Il disparaît sans conflit. D’autres ont remarqué." },
+    { id: "expose", label: "L’exposer publiquement", type: "communication", stability: -3, ghost: "humiliation", feedback: "Le message passe. Le ressentiment aussi." },
+    { id: "wait", label: "Attendre", type: "passivite", stability: 0, ghost: "glissement", feedback: "La situation évolue sans vous." }
+  ]
+},
+{
+  id: "Q04",
+  text: "Une règle commence à être contournée systématiquement.",
+  choices: [
+    { id: "tighten", label: "Renforcer la règle", type: "controle", stability: +3, ghost: "rigidite", feedback: "La conformité augmente. L’inventivité aussi." },
+    { id: "ignore", label: "Tolérer", type: "passivite", stability: -1, ghost: "erosion", feedback: "La règle survit. Son sens disparaît." },
+    { id: "rewrite", label: "Réécrire le cadre", type: "integration", stability: +1, ghost: "zone_grise", feedback: "Tout est légal. Plus rien n’est clair." },
+    { id: "communicate", label: "Rappeler l’esprit de la règle", type: "communication", stability: 0, ghost: "morale", feedback: "Chacun comprend ce qu’il veut." }
+  ]
+},
+{
+  id: "Q05",
+  text: "Le système devient trop dépendant d’un outil.",
+  choices: [
+    { id: "diversify", label: "Diversifier", type: "integration", stability: -2, ghost: "complexite", feedback: "La résilience augmente. La maîtrise diminue." },
+    { id: "lock", label: "Assumer la dépendance", type: "controle", stability: +4, ghost: "verrouillage", feedback: "Tout fonctionne. Jusqu’au jour où non." },
+    { id: "hide", label: "Masquer la dépendance", type: "communication", stability: +1, ghost: "opacite", feedback: "Le récit tient. La réalité aussi, pour l’instant." },
+    { id: "nothing", label: "Ne rien faire", type: "passivite", stability: 0, ghost: "accoutumance", feedback: "Le confort s’installe." }
+  ]
+},
 {
   id: "Q06",
   text: "Un indicateur clé cesse d’évoluer. Il est stable. Trop stable.",
