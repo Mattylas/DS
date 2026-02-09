@@ -130,7 +130,6 @@ function resolveEnding() {
    EXPORT
 -------------------- */
 window.SystemEngine = { state: systemState, applyChoice, questionAvailable, resolveEnding, renderQuestion };
-];
 const QUESTIONS = [
 
 /* ==============================
