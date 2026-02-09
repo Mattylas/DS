@@ -1,8 +1,3 @@
-// ===============================
-// FILM POLITIQUE INTERACTIF — SCRIPT.JS CORRIGÉ
-// 24 QUESTIONS + LOGIQUE COMPLÈTE
-// ===============================
-
 let currentQuestion = 0;
 let score = 50;
 let playerTags = [];
