@@ -129,3 +129,32 @@ header h1 {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+/* MINI-CHAOS VISUEL */
+.lightning {
+  position: fixed;
+  width: 3px;
+  height: 100%;
+  background: #0f0;
+  left: 0;
+  top: 0;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 300;
+  transform: skewX(20deg);
+  animation: flash 0.2s linear forwards;
+}
+
+@keyframes flash {
+  0% { opacity: 1; transform: translateX(0) scaleY(1); }
+  50% { opacity: 0.5; transform: translateX(50px) scaleY(1.2); }
+  100% { opacity: 0; transform: translateX(100px) scaleY(0.8); }
+}
+
+/* PETITE SECousse DE L’ÉCRAN */
+@keyframes shake {
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(5px, -5px); }
+  50% { transform: translate(-5px, 5px); }
+  75% { transform: translate(5px, 5px); }
+  100% { transform: translate(0, 0); }
+}
